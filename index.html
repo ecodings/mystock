@@ -508,18 +508,16 @@
                 }
                 
                 const csvText = await response.text();
-                console.log('CSV 텍스트 길이:', csvText.length);
-                
                 tradeData = parseCSV(csvText);
                 
                 if (tradeData.length === 0) {
-                    alert('데이터가 없습니다. 스프레드시트를 확인해주세요.');
+                    alert('데이터가 없습니다.');
                     return;
                 }
                 
                 console.log('총 거래 데이터:', tradeData.length, '개');
                 
-                loadPrevClosePrices(); // await 제거
+                await loadPrevClosePrices(); // await 다시 추가
                 renderAccounts();
                 updateCalendar();
                 loadDiary();
@@ -598,12 +596,30 @@
         }
         
         // 전일 종가 로드 (yfinance 대신 간단한 더미 데이터)
-        function loadPrevClosePrices() {
-            // 실제로는 yfinance API를 호출해야 하지만, 
-            // 클라이언트에서는 불가능하므로 더미 데이터 사용
-            tradeData.forEach(trade => {
-                trade.prevClose = trade.price * 0.98; // 임시로 매입가의 98%로 설정
-            });
+        async function loadPrevClosePrices() {
+            try {
+                const response = await fetch('stock_prices.json');
+                const data = await response.json();
+                
+                console.log('📊 가격 데이터 로드:', data.updated_at);
+                
+                tradeData.forEach(trade => {
+                    if (data.prices[trade.code]) {
+                        trade.prevClose = data.prices[trade.code];
+                    } else {
+                        // JSON에 없으면 매입가의 98%로 추정
+                        trade.prevClose = trade.price * 0.98;
+                    }
+                });
+                
+                console.log('✅ 전일 종가 적용 완료');
+            } catch (error) {
+                console.error('❌ 가격 데이터 로드 실패:', error);
+                // 실패시 더미 데이터 사용
+                tradeData.forEach(trade => {
+                    trade.prevClose = trade.price * 0.98;
+                });
+            }
         }
         
         // 계좌 현황 렌더링
