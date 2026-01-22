@@ -10,11 +10,21 @@ SHEET_URL = f'https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=cs
 def get_stock_codes():
     """스프레드시트에서 고유한 종목 코드 추출"""
     df = pd.read_csv(SHEET_URL)
-    # 6번째 컬럼이 종목 코드
+    
+    # 6번째 컬럼이 종목 코드 (인덱스 6)
     codes = df.iloc[:, 6].unique()
-    # 빈 값 제거
-    codes = [str(code).strip() for code in codes if pd.notna(code) and str(code).strip()]
-    return codes
+    
+    # 빈 값 및 숫자가 아닌 값 제거
+    valid_codes = []
+    for code in codes:
+        if pd.notna(code):
+            code_str = str(code).strip()
+            # 6자리 숫자인지 확인
+            if code_str.isdigit() and len(code_str) == 6:
+                valid_codes.append(code_str)
+    
+    print(f"유효한 종목 코드: {valid_codes}")
+    return valid_codes
 
 def get_prev_close(code):
     """특정 종목의 전일 종가 가져오기"""
