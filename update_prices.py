@@ -11,20 +11,24 @@ def get_stock_codes():
     """스프레드시트에서 고유한 종목 코드 추출"""
     df = pd.read_csv(SHEET_URL)
     
-    # 6번째 컬럼이 종목 코드 (인덱스 6)
-    codes = df.iloc[:, 6].unique()
+    # 디버깅: 전체 구조 출력
+    print(f"총 행 수: {len(df)}")
+    print(f"총 컬럼 수: {len(df.columns)}")
+    print(f"컬럼 이름: {df.columns.tolist()}")
+    print(f"\n첫 5행 데이터:")
+    print(df.head())
     
-    # 빈 값 및 숫자가 아닌 값 제거
-    valid_codes = []
-    for code in codes:
-        if pd.notna(code):
-            code_str = str(code).strip()
-            # 6자리 숫자인지 확인
-            if code_str.isdigit() and len(code_str) == 6:
-                valid_codes.append(code_str)
+    # 모든 컬럼을 확인해서 종목 코드 찾기
+    print("\n각 컬럼의 샘플 데이터:")
+    for i, col in enumerate(df.columns):
+        print(f"컬럼 {i} ({col}): {df.iloc[0, i]}")
     
-    print(f"유효한 종목 코드: {valid_codes}")
-    return valid_codes
+    # 6번째 컬럼 (인덱스 6) 확인
+    if len(df.columns) > 6:
+        print(f"\n6번째 컬럼 데이터: {df.iloc[:, 6].unique()}")
+    
+    # 일단 빈 리스트 반환
+    return []
 
 def get_prev_close(code):
     """특정 종목의 전일 종가 가져오기"""
