@@ -17,30 +17,14 @@
             color: #2c3e50;
         }
         
-        .container {
-            display: grid;
-            grid-template-columns: 300px 1fr 400px;
-            gap: 20px;
-            padding: 20px;
-            height: 100vh;
-        }
-        
-        .panel {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            overflow-y: auto;
-        }
-        
-        /* 헤더 */
         .header {
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #e9ecef;
         }
         
         .header h1 {
@@ -61,6 +45,22 @@
         
         .refresh-btn:hover {
             background: #2980b9;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 300px 1fr 400px;
+            gap: 20px;
+            padding: 0 20px 20px;
+            max-height: calc(100vh - 100px);
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow-y: auto;
         }
         
         /* 좌측 패널 */
@@ -202,34 +202,35 @@
         .calendar {
             background: white;
             border-radius: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
+            gap: 3px;
         }
         
         .calendar-day-header {
             text-align: center;
-            padding: 10px;
+            padding: 8px;
             font-size: 12px;
             font-weight: bold;
             color: #6c757d;
         }
         
         .calendar-day {
-            aspect-ratio: 1;
+            aspect-ratio: 1.2;
             border: 1px solid #e9ecef;
             border-radius: 6px;
-            padding: 8px;
+            padding: 6px;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            font-size: 11px;
         }
         
         .calendar-day:hover {
@@ -248,28 +249,28 @@
         }
         
         .day-number {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         
         .day-buy {
-            font-size: 10px;
+            font-size: 9px;
             color: #e74c3c;
         }
         
         .day-sell {
-            font-size: 10px;
+            font-size: 9px;
             color: #3498db;
         }
         
         .calendar-summary {
             display: flex;
             justify-content: space-around;
-            padding: 15px;
+            padding: 12px;
             background: #f8f9fa;
             border-radius: 6px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         
         .summary-item {
@@ -277,13 +278,13 @@
         }
         
         .summary-label {
-            font-size: 12px;
+            font-size: 11px;
             color: #6c757d;
             margin-bottom: 4px;
         }
         
         .summary-value {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
         }
         
@@ -294,30 +295,31 @@
         }
         
         .diary-title {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         
         .diary-textarea {
             flex: 1;
             border: 1px solid #dee2e6;
             border-radius: 6px;
-            padding: 12px;
-            font-size: 14px;
+            padding: 10px;
+            font-size: 13px;
             resize: none;
             font-family: inherit;
+            min-height: 100px;
         }
         
         .diary-save-btn {
-            margin-top: 10px;
+            margin-top: 8px;
             background: #27ae60;
             color: white;
             border: none;
-            padding: 10px;
+            padding: 8px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
         }
         
         .diary-save-btn:hover {
@@ -370,7 +372,7 @@
         
         .chart-section {
             flex: 1;
-            min-height: 300px;
+            min-height: 250px;
         }
         
         .loading {
@@ -517,7 +519,7 @@
                 
                 console.log('총 거래 데이터:', tradeData.length, '개');
                 
-                await loadPrevClosePrices(); // await 다시 추가
+                await loadPrevClosePrices();
                 renderAccounts();
                 updateCalendar();
                 loadDiary();
@@ -534,12 +536,10 @@
             const lines = csvText.trim().split('\n');
             const data = [];
             
-            // 첫 번째 줄은 헤더이므로 스킵
             for (let i = 1; i < lines.length; i++) {
                 const line = lines[i].trim();
                 if (!line) continue;
                 
-                // CSV 파싱 (쉼표로 구분, 따옴표 처리)
                 const values = [];
                 let current = '';
                 let inQuotes = false;
@@ -556,14 +556,12 @@
                 }
                 values.push(current.trim());
                 
-                // 데이터가 충분하지 않으면 스킵
                 if (values.length < 10) continue;
                 
                 const row = {
                     date: values[0]?.replace(/"/g, '').trim(),
                     account: values[2]?.replace(/"/g, '').trim(),
                     category: values[3]?.replace(/"/g, '').trim(),
-                    group: values[4]?.replace(/"/g, '').trim(),
                     stockName: values[5]?.replace(/"/g, '').trim(),
                     code: values[6]?.replace(/"/g, '').trim(),
                     type: values[7]?.replace(/"/g, '').trim(),
@@ -572,7 +570,7 @@
                     prevClose: 0
                 };
                 
-                // 날짜 형식 변환 (25.11.03 -> 2025-11-03)
+                // 날짜 형식 변환
                 if (row.date && row.date.includes('.')) {
                     const parts = row.date.split('.');
                     if (parts.length === 3) {
@@ -583,19 +581,15 @@
                     }
                 }
                 
-                // 유효한 데이터만 추가
                 if (row.stockName && row.date) {
                     data.push(row);
                 }
             }
             
-            console.log('파싱된 데이터:', data.length, '개');
-            console.log('샘플 데이터:', data.slice(0, 3));
-            
             return data;
         }
         
-        // 전일 종가 로드 (yfinance 대신 간단한 더미 데이터)
+        // 전일 종가 로드
         async function loadPrevClosePrices() {
             try {
                 const response = await fetch('stock_prices.json');
@@ -604,10 +598,9 @@
                 console.log('📊 가격 데이터 로드:', data.updated_at);
                 
                 tradeData.forEach(trade => {
-                    if (data.prices[trade.code]) {
+                    if (data.prices && data.prices[trade.code]) {
                         trade.prevClose = data.prices[trade.code];
                     } else {
-                        // JSON에 없으면 매입가의 98%로 추정
                         trade.prevClose = trade.price * 0.98;
                     }
                 });
@@ -615,7 +608,6 @@
                 console.log('✅ 전일 종가 적용 완료');
             } catch (error) {
                 console.error('❌ 가격 데이터 로드 실패:', error);
-                // 실패시 더미 데이터 사용
                 tradeData.forEach(trade => {
                     trade.prevClose = trade.price * 0.98;
                 });
@@ -627,7 +619,6 @@
             const container = document.getElementById('accountsContainer');
             const accounts = {};
             
-            // 계좌별로 현재 보유 수량 계산
             tradeData.forEach(trade => {
                 if (!accounts[trade.account]) {
                     accounts[trade.account] = {};
@@ -659,7 +650,7 @@
                 
                 Object.keys(accounts[accountName]).forEach(stockName => {
                     const stock = accounts[accountName][stockName];
-                    if (stock.quantity <= 0) return; // 보유하지 않은 종목은 제외
+                    if (stock.quantity <= 0) return;
                     
                     const avgPrice = stock.totalBuy / stock.buyCount;
                     const currentValue = stock.prevClose * stock.quantity;
@@ -694,7 +685,6 @@
         function selectStock(stockName, code) {
             selectedStock = stockName;
             
-            // UI 업데이트
             document.querySelectorAll('.stock-item').forEach(el => {
                 el.classList.remove('active');
             });
@@ -703,13 +693,9 @@
             document.getElementById('currentStockName').textContent = stockName;
             document.getElementById('allFilterBtn').classList.remove('active');
             
-            // 종목별 거래 내역 표시
             renderStockHistory(stockName);
-            
-            // 달력 업데이트
             updateCalendar();
             
-            // 차트 업데이트 (임시)
             document.getElementById('chartContainer').innerHTML = 
                 `<div class="loading">${stockName} 차트<br>(실제 환경에서는 차트 라이브러리 필요)</div>`;
         }
@@ -726,7 +712,6 @@
                 document.getElementById('tradeHistoryContainer').innerHTML = '';
                 updateCalendar();
                 
-                // 코스피 차트
                 document.getElementById('chartContainer').innerHTML = 
                     `<div class="loading">코스피 지수 차트<br>(실제 환경에서는 차트 라이브러리 필요)</div>`;
             }
@@ -739,10 +724,12 @@
             
             let html = '';
             trades.forEach(trade => {
+                const totalAmount = trade.price * trade.quantity;
                 html += `
                     <div class="trade-item">
                         <div>${trade.date}</div>
-                        <div>${trade.type} ${trade.quantity}주 @${trade.price.toLocaleString()}원</div>
+                        <div>${trade.type} ${trade.quantity}주 × ${trade.price.toLocaleString()}원</div>
+                        <div style="color: #6c757d; font-size: 11px;">총액: ${totalAmount.toLocaleString()}원</div>
                     </div>
                 `;
             });
@@ -763,12 +750,10 @@
             const grid = document.getElementById('calendarGrid');
             grid.innerHTML = '';
             
-            // 빈 칸 추가
             for (let i = 0; i < firstDay; i++) {
                 grid.innerHTML += '<div class="calendar-day empty"></div>';
             }
             
-            // 날짜별 거래 집계
             const dailyTrades = {};
             let totalBuy = 0;
             let totalSell = 0;
@@ -794,7 +779,6 @@
                 }
             });
             
-            // 날짜 렌더링
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const trades = dailyTrades[day] || { buy: 0, sell: 0 };
@@ -815,7 +799,6 @@
                 grid.innerHTML += dayHtml;
             }
             
-            // 합계 업데이트
             document.getElementById('totalBuy').textContent = (totalBuy/10000).toFixed(0) + '만원';
             document.getElementById('totalSell').textContent = (totalSell/10000).toFixed(0) + '만원';
         }
@@ -824,16 +807,12 @@
         function selectDate(dateStr) {
             selectedDate = dateStr;
             
-            // 달력 UI 업데이트
             document.querySelectorAll('.calendar-day').forEach(el => {
                 el.classList.remove('active');
             });
             event.target.closest('.calendar-day').classList.add('active');
             
-            // 거래 상세 표시
             renderTradeDetails(dateStr);
-            
-            // 일기 로드
             loadDiary();
         }
         
@@ -901,7 +880,6 @@
             }
         }
         
-        // 페이지 로드 시 초기화
         window.onload = init;
     </script>
 </body>
