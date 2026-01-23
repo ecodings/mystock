@@ -50,7 +50,7 @@
         
         .container {
             display: grid;
-            grid-template-columns: 320px 1fr 420px;
+            grid-template-columns: 400px 1fr 450px;
             gap: 20px;
             padding: 0 20px 20px;
             height: calc(100vh - 100px);
@@ -71,6 +71,12 @@
             gap: 20px;
         }
         
+        #accountsContainer {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
         .account-section {
             background: #f8f9fa;
             border-radius: 8px;
@@ -78,7 +84,7 @@
         }
         
         .account-title {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
             margin-bottom: 15px;
             color: #495057;
@@ -105,7 +111,7 @@
         }
         
         .stock-name {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
             margin-bottom: 8px;
             color: #2c3e50;
@@ -115,13 +121,13 @@
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 6px;
-            font-size: 13px;
+            font-size: 15px;
             color: #6c757d;
             margin-bottom: 6px;
         }
         
         .stock-info-label {
-            font-size: 11px;
+            font-size: 12px;
             color: #95a5a6;
             margin-top: 4px;
         }
@@ -141,7 +147,7 @@
         }
         
         .trade-history-title {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
             margin-bottom: 12px;
             color: #495057;
@@ -152,13 +158,13 @@
             border-radius: 6px;
             padding: 10px;
             margin-bottom: 8px;
-            font-size: 13px;
+            font-size: 14px;
             line-height: 1.6;
         }
         
         .trade-date {
             color: #6c757d;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
             margin-bottom: 4px;
         }
@@ -236,16 +242,16 @@
         }
         
         .calendar-day {
-            aspect-ratio: 1.5;
+            aspect-ratio: 2;
             border: 1px solid #e9ecef;
             border-radius: 6px;
-            padding: 8px 4px;
+            padding: 8px 6px;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            align-items: flex-start;
+            justify-content: flex-start;
             font-size: 12px;
         }
         
@@ -274,17 +280,17 @@
         .day-number {
             font-size: 15px;
             font-weight: bold;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
         }
         
         .day-buy {
-            font-size: 11px;
+            font-size: 10px;
             color: #e74c3c;
             font-weight: 600;
         }
         
         .day-sell {
-            font-size: 11px;
+            font-size: 10px;
             color: #3498db;
             font-weight: 600;
         }
@@ -614,11 +620,11 @@
                     date: values[0]?.replace(/"/g, '').trim(),
                     account: values[2]?.replace(/"/g, '').trim(),
                     category: values[3]?.replace(/"/g, '').trim(),
-                    stockName: values[4]?.replace(/"/g, '').trim(),
-                    code: values[5]?.replace(/"/g, '').trim(),
-                    type: values[6]?.replace(/"/g, '').trim(),
-                    quantity: parseInt(values[7]?.replace(/"/g, '').replace(/,/g, '')) || 0,
-                    price: parseInt(values[8]?.replace(/"/g, '').replace(/,/g, '')) || 0,
+                    stockName: values[5]?.replace(/"/g, '').trim(),
+                    code: values[6]?.replace(/"/g, '').trim(),
+                    type: values[7]?.replace(/"/g, '').trim(),
+                    quantity: parseInt(values[8]?.replace(/"/g, '').replace(/,/g, '')) || 0,
+                    price: parseInt(values[9]?.replace(/"/g, '').replace(/,/g, '')) || 0,
                     prevClose: 0
                 };
                 
@@ -714,9 +720,9 @@
                         <div class="stock-item" onclick="selectStock('${stockName}', '${stock.code}')">
                             <div class="stock-name">${stockName}</div>
                             <div class="stock-info">
-                                <div class="${profitClass}">${profit >= 0 ? '+' : ''}${profit.toLocaleString()}원</div>
+                                <div class="${profitClass}">${profit >= 0 ? '+' : ''}${Math.floor(profit).toLocaleString()}원</div>
                                 <div>${stock.quantity}주</div>
-                                <div>${Math.round(avgPrice).toLocaleString()}원</div>
+                                <div>${Math.floor(avgPrice).toLocaleString()}원</div>
                             </div>
                             <div class="stock-info stock-info-label">
                                 <div>평가손익</div>
@@ -725,8 +731,8 @@
                             </div>
                             <div class="stock-info" style="margin-top: 8px;">
                                 <div class="${profitClass}">${profitRate >= 0 ? '+' : ''}${profitRate}%</div>
-                                <div>${currentValue.toLocaleString()}원</div>
-                                <div>${Math.round(stock.prevClose).toLocaleString()}원</div>
+                                <div>${Math.floor(currentValue).toLocaleString()}원</div>
+                                <div>${Math.floor(stock.prevClose).toLocaleString()}원</div>
                             </div>
                             <div class="stock-info stock-info-label">
                                 <div>수익률</div>
@@ -772,6 +778,7 @@
                     el.classList.remove('active');
                 });
                 document.getElementById('tradeHistoryContainer').innerHTML = '';
+                document.querySelector('.trade-history-title').textContent = '종목별 거래 내역';
                 updateCalendar();
                 
                 document.getElementById('chartContainer').innerHTML = 
@@ -782,6 +789,8 @@
         // 종목별 거래 내역 렌더링
         function renderStockHistory(stockName) {
             const container = document.getElementById('tradeHistoryContainer');
+            document.querySelector('.trade-history-title').textContent = `종목별 거래 내역 - ${stockName}`;
+            
             const trades = tradeData.filter(t => t.stockName === stockName);
             
             let html = '';
@@ -794,8 +803,8 @@
                         <div style="color: ${typeColor}; font-weight: 600; margin-bottom: 4px;">
                             ${trade.type} ${trade.quantity}주
                         </div>
-                        <div>단가: ${trade.price.toLocaleString()}원</div>
-                        <div style="font-weight: 600; margin-top: 4px;">총액: ${totalAmount.toLocaleString()}원</div>
+                        <div>단가: ${Math.floor(trade.price).toLocaleString()}원</div>
+                        <div style="font-weight: 600; margin-top: 4px;">총액: ${Math.floor(totalAmount).toLocaleString()}원</div>
                     </div>
                 `;
             });
@@ -855,18 +864,18 @@
                 `;
                 
                 if (trades.buy > 0) {
-                    dayHtml += `<div class="day-buy">▲${(trades.buy/10000).toFixed(0)}만</div>`;
+                    dayHtml += `<div class="day-buy">매수 ${Math.floor(trades.buy/10000)}만</div>`;
                 }
                 if (trades.sell > 0) {
-                    dayHtml += `<div class="day-sell">▼${(trades.sell/10000).toFixed(0)}만</div>`;
+                    dayHtml += `<div class="day-sell">매도 ${Math.floor(trades.sell/10000)}만</div>`;
                 }
                 
                 dayHtml += `</div>`;
                 grid.innerHTML += dayHtml;
             }
             
-            document.getElementById('totalBuy').textContent = (totalBuy/10000).toFixed(0) + '만원';
-            document.getElementById('totalSell').textContent = (totalSell/10000).toFixed(0) + '만원';
+            document.getElementById('totalBuy').textContent = Math.floor(totalBuy/10000) + '만원';
+            document.getElementById('totalSell').textContent = Math.floor(totalSell/10000) + '만원';
         }
         
         // 날짜 선택
@@ -907,8 +916,8 @@
                         </div>
                         <div class="trade-detail-info">
                             수량: <strong>${trade.quantity}주</strong><br>
-                            단가: <strong>${trade.price.toLocaleString()}원</strong><br>
-                            총액: <strong style="font-size: 16px;">${amount.toLocaleString()}원</strong>
+                            단가: <strong>${Math.floor(trade.price).toLocaleString()}원</strong><br>
+                            총액: <strong style="font-size: 16px;">${Math.floor(amount).toLocaleString()}원</strong>
                         </div>
                     </div>
                 `;
