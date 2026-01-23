@@ -31,5 +31,6 @@ jobs:
       run: |
         git config --global user.name 'GitHub Actions'
         git config --global user.email 'actions@github.com'
+        git pull origin main
         git add stock_prices.json
         git diff --quiet && git diff --staged --quiet || (git commit -m "Update stock prices $(date +'%Y-%m-%d %H:%M')" && git push)
