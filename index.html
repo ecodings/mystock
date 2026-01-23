@@ -15,6 +15,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
             background: #f5f7fa;
             color: #2c3e50;
+            font-size: 14px;
         }
         
         .header {
@@ -49,10 +50,10 @@
         
         .container {
             display: grid;
-            grid-template-columns: 300px 1fr 400px;
+            grid-template-columns: 320px 1fr 420px;
             gap: 20px;
             padding: 0 20px 20px;
-            max-height: calc(100vh - 100px);
+            height: calc(100vh - 100px);
         }
         
         .panel {
@@ -77,17 +78,17 @@
         }
         
         .account-title {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             color: #495057;
         }
         
         .stock-item {
             background: white;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 8px;
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 10px;
             cursor: pointer;
             transition: all 0.2s;
             border: 2px solid transparent;
@@ -95,6 +96,7 @@
         
         .stock-item:hover {
             border-color: #3498db;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
         }
         
         .stock-item.active {
@@ -103,56 +105,69 @@
         }
         
         .stock-name {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
+            color: #2c3e50;
         }
         
         .stock-info {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 4px;
-            font-size: 11px;
+            gap: 6px;
+            font-size: 13px;
             color: #6c757d;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+        }
+        
+        .stock-info-label {
+            font-size: 11px;
+            color: #95a5a6;
+            margin-top: 4px;
         }
         
         .profit-positive {
             color: #e74c3c;
+            font-weight: 600;
         }
         
         .profit-negative {
             color: #3498db;
+            font-weight: 600;
         }
         
         .trade-history {
-            margin-top: 20px;
+            flex: 1;
         }
         
         .trade-history-title {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             color: #495057;
         }
         
         .trade-item {
             background: #f8f9fa;
-            border-radius: 4px;
-            padding: 8px;
-            margin-bottom: 6px;
-            font-size: 12px;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            line-height: 1.6;
         }
         
         .trade-date {
             color: #6c757d;
-            font-size: 11px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 4px;
         }
         
         /* 중앙 패널 */
         .center-panel {
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
         
         .calendar-header {
@@ -166,10 +181,11 @@
             background: #ecf0f1;
             color: #2c3e50;
             border: none;
-            padding: 8px 16px;
+            padding: 10px 18px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 15px;
+            font-weight: 600;
             transition: all 0.2s;
         }
         
@@ -192,7 +208,7 @@
         }
         
         .current-stock-name {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
             color: #2c3e50;
             text-align: center;
@@ -208,33 +224,35 @@
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 3px;
+            gap: 4px;
         }
         
         .calendar-day-header {
             text-align: center;
-            padding: 8px;
-            font-size: 12px;
+            padding: 10px;
+            font-size: 13px;
             font-weight: bold;
             color: #6c757d;
         }
         
         .calendar-day {
-            aspect-ratio: 1.2;
+            aspect-ratio: 1.5;
             border: 1px solid #e9ecef;
             border-radius: 6px;
-            padding: 6px;
+            padding: 8px 4px;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
+            font-size: 12px;
         }
         
         .calendar-day:hover {
             background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
         .calendar-day.active {
@@ -248,29 +266,36 @@
             cursor: default;
         }
         
+        .calendar-day.empty:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        
         .day-number {
-            font-size: 13px;
+            font-size: 15px;
             font-weight: bold;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
         }
         
         .day-buy {
-            font-size: 9px;
+            font-size: 11px;
             color: #e74c3c;
+            font-weight: 600;
         }
         
         .day-sell {
-            font-size: 9px;
+            font-size: 11px;
             color: #3498db;
+            font-weight: 600;
         }
         
         .calendar-summary {
             display: flex;
             justify-content: space-around;
-            padding: 12px;
+            padding: 15px;
             background: #f8f9fa;
-            border-radius: 6px;
-            margin-bottom: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
         }
         
         .summary-item {
@@ -278,13 +303,13 @@
         }
         
         .summary-label {
-            font-size: 11px;
+            font-size: 13px;
             color: #6c757d;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
         
         .summary-value {
-            font-size: 16px;
+            font-size: 20px;
             font-weight: bold;
         }
         
@@ -292,34 +317,36 @@
             flex: 1;
             display: flex;
             flex-direction: column;
+            min-height: 150px;
         }
         
         .diary-title {
-            font-size: 13px;
+            font-size: 15px;
             font-weight: bold;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         
         .diary-textarea {
             flex: 1;
             border: 1px solid #dee2e6;
             border-radius: 6px;
-            padding: 10px;
-            font-size: 13px;
+            padding: 12px;
+            font-size: 14px;
             resize: none;
             font-family: inherit;
-            min-height: 100px;
+            line-height: 1.6;
         }
         
         .diary-save-btn {
-            margin-top: 8px;
+            margin-top: 10px;
             background: #27ae60;
             color: white;
             border: none;
-            padding: 8px;
+            padding: 10px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 14px;
+            font-weight: 600;
         }
         
         .diary-save-btn:hover {
@@ -339,25 +366,35 @@
         }
         
         .detail-title {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
             margin-bottom: 15px;
+            color: #2c3e50;
         }
         
         .trade-detail-item {
             background: #f8f9fa;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 10px;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .trade-detail-item.buy-item {
+            border-left-color: #e74c3c;
+        }
+        
+        .trade-detail-item.sell-item {
+            border-left-color: #3498db;
         }
         
         .trade-type {
             display: inline-block;
-            padding: 4px 8px;
+            padding: 5px 10px;
             border-radius: 4px;
-            font-size: 11px;
+            font-size: 13px;
             font-weight: bold;
-            margin-right: 8px;
+            margin-right: 10px;
         }
         
         .trade-type.buy {
@@ -370,6 +407,19 @@
             color: #3498db;
         }
         
+        .trade-detail-stock {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .trade-detail-info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #6c757d;
+            line-height: 1.6;
+        }
+        
         .chart-section {
             flex: 1;
             min-height: 250px;
@@ -377,8 +427,10 @@
         
         .loading {
             text-align: center;
-            padding: 40px;
-            color: #6c757d;
+            padding: 60px 20px;
+            color: #95a5a6;
+            font-size: 14px;
+            line-height: 1.8;
         }
     </style>
 </head>
@@ -455,7 +507,7 @@
             
             <div class="panel chart-section">
                 <div class="detail-title">차트</div>
-                <div id="chartContainer" class="loading">차트를 불러오는 중...</div>
+                <div id="chartContainer" class="loading">차트 기능은<br>추후 업데이트 예정입니다</div>
             </div>
         </div>
     </div>
@@ -666,10 +718,20 @@
                                 <div>${stock.quantity}주</div>
                                 <div>${Math.round(avgPrice).toLocaleString()}원</div>
                             </div>
-                            <div class="stock-info">
+                            <div class="stock-info stock-info-label">
+                                <div>평가손익</div>
+                                <div>보유수량</div>
+                                <div>평균단가</div>
+                            </div>
+                            <div class="stock-info" style="margin-top: 8px;">
                                 <div class="${profitClass}">${profitRate >= 0 ? '+' : ''}${profitRate}%</div>
                                 <div>${currentValue.toLocaleString()}원</div>
                                 <div>${Math.round(stock.prevClose).toLocaleString()}원</div>
+                            </div>
+                            <div class="stock-info stock-info-label">
+                                <div>수익률</div>
+                                <div>평가금액</div>
+                                <div>전일종가</div>
                             </div>
                         </div>
                     `;
@@ -697,7 +759,7 @@
             updateCalendar();
             
             document.getElementById('chartContainer').innerHTML = 
-                `<div class="loading">${stockName} 차트<br>(실제 환경에서는 차트 라이브러리 필요)</div>`;
+                `<div class="loading">${stockName} 차트<br>추후 업데이트 예정</div>`;
         }
         
         // 전체 필터 선택
@@ -713,7 +775,7 @@
                 updateCalendar();
                 
                 document.getElementById('chartContainer').innerHTML = 
-                    `<div class="loading">코스피 지수 차트<br>(실제 환경에서는 차트 라이브러리 필요)</div>`;
+                    `<div class="loading">코스피 지수 차트<br>추후 업데이트 예정</div>`;
             }
         }
         
@@ -725,11 +787,15 @@
             let html = '';
             trades.forEach(trade => {
                 const totalAmount = trade.price * trade.quantity;
+                const typeColor = trade.type === '매수' ? '#e74c3c' : '#3498db';
                 html += `
                     <div class="trade-item">
-                        <div>${trade.date}</div>
-                        <div>${trade.type} ${trade.quantity}주 × ${trade.price.toLocaleString()}원</div>
-                        <div style="color: #6c757d; font-size: 11px;">총액: ${totalAmount.toLocaleString()}원</div>
+                        <div class="trade-date">${trade.date}</div>
+                        <div style="color: ${typeColor}; font-weight: 600; margin-bottom: 4px;">
+                            ${trade.type} ${trade.quantity}주
+                        </div>
+                        <div>단가: ${trade.price.toLocaleString()}원</div>
+                        <div style="font-weight: 600; margin-top: 4px;">총액: ${totalAmount.toLocaleString()}원</div>
                     </div>
                 `;
             });
@@ -831,14 +897,18 @@
             let html = '';
             trades.forEach(trade => {
                 const typeClass = trade.type === '매수' ? 'buy' : 'sell';
+                const itemClass = trade.type === '매수' ? 'buy-item' : 'sell-item';
                 const amount = trade.price * trade.quantity;
                 html += `
-                    <div class="trade-detail-item">
-                        <span class="trade-type ${typeClass}">${trade.type}</span>
-                        <strong>${trade.stockName}</strong>
-                        <div style="margin-top: 8px; font-size: 12px; color: #6c757d;">
-                            ${trade.quantity}주 × ${trade.price.toLocaleString()}원 
-                            = ${amount.toLocaleString()}원
+                    <div class="trade-detail-item ${itemClass}">
+                        <div>
+                            <span class="trade-type ${typeClass}">${trade.type}</span>
+                            <span class="trade-detail-stock">${trade.stockName}</span>
+                        </div>
+                        <div class="trade-detail-info">
+                            수량: <strong>${trade.quantity}주</strong><br>
+                            단가: <strong>${trade.price.toLocaleString()}원</strong><br>
+                            총액: <strong style="font-size: 16px;">${amount.toLocaleString()}원</strong>
                         </div>
                     </div>
                 `;
