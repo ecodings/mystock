@@ -732,7 +732,7 @@
                     const stock = accounts[accountName][stockName];
                     if (stock.quantity <= 0) return;
                     
-                    const avgPrice = stock.totalBuy / stock.buyCount;
+                    const avgPrice = stock.totalBuy / (stock.buyCount - (totalBuy - stock.quantity));
                     const currentValue = stock.prevClose * stock.quantity;
                     const profit = currentValue - (avgPrice * stock.quantity);
                     const profitRate = (profit / (avgPrice * stock.quantity) * 100).toFixed(2);
