@@ -1144,7 +1144,18 @@
                 
                 console.log('총 거래 데이터:', tradeData.length, '개');
                 
+                // 1. 먼저 stock_prices.json에서 로드 (백업용)
                 await loadPrevClosePrices();
+                
+                // 2. 실시간 가격 조회 시도
+                const successCount = await fetchRealtimePrices();
+                
+                if (successCount > 0) {
+                    console.log('✅ 실시간 가격 적용 완료!');
+                } else {
+                    console.log('⚠️ 실시간 조회 실패, 전일 종가 사용');
+                }
+                
                 renderAccounts();
                 updateCalendar();
                 loadDiary();
@@ -1238,6 +1249,56 @@
                 });
             }
         }
+
+        const ALPHA_VANTAGE_API_KEY = 'AQVB456YC485DIE3';
+
+        async function fetchRealtimePrices() {
+            console.log('🔄 실시간 주가 조회 시작...');
+            
+            const codes = [...new Set(tradeData.map(t => t.code))];
+            let successCount = 0;
+            let failCount = 0;
+            
+            for (const code of codes) {
+                try {
+                    // Alpha Vantage API 호출 (한국 주식은 .KS 또는 .KQ 붙임)
+                    const exchange = code.startsWith('0') ? 'KQ' : 'KS'; // 코스닥은 0으로 시작
+                    const symbol = `${code}.${exchange}`;
+                    
+                    const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${ALPHA_VANTAGE_API_KEY}`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    
+                    if (data['Global Quote'] && data['Global Quote']['05. price']) {
+                        const price = parseFloat(data['Global Quote']['05. price']);
+                        
+                        // tradeData 업데이트
+                        tradeData.forEach(trade => {
+                            if (trade.code === code) {
+                                trade.prevClose = price;
+                            }
+                        });
+                        
+                        successCount++;
+                        console.log(`✅ ${code}: ${price}원`);
+                    } else {
+                        failCount++;
+                        console.warn(`⚠️ ${code}: 가격 조회 실패`);
+                    }
+                    
+                    // API 제한 회피를 위해 약간의 지연
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                } catch (error) {
+                    failCount++;
+                    console.error(`❌ ${code} 조회 오류:`, error);
+                }
+            }
+            
+            console.log(`📊 실시간 조회 완료: 성공 ${successCount}개, 실패 ${failCount}개`);
+            return successCount;
+        }
+        
         
         // 계좌 현황 렌더링
         function renderAccounts() {
