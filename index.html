@@ -441,7 +441,10 @@
             flex: 1;
             display: flex;
             flex-direction: column;
+            min-height: 0;  /* 👈 추가 */
+            overflow: hidden;  /* 👈 추가 */
         }
+
         
         .tab-buttons {
             display: flex;
@@ -481,7 +484,8 @@
         .donut-charts-container {
             display: flex;
             gap: 10px;
-            height: 100%;
+            flex: 1;  /* 👈 height: 100% 대신 */
+            min-height: 0;  /* 👈 추가 */
         }
         
         .donut-chart-item {
@@ -505,6 +509,7 @@
         .donut-chart-canvas {
             flex: 1;
             position: relative;
+            min-height: 0;  /* 👈 추가 */
         }
         
         /* 매매일기 */
@@ -788,15 +793,18 @@
                 
                 if (values.length < 9) continue;
                 
+                const account = values[2]?.replace(/"/g, '').trim();
+                const priceIndex = account === '미국' ? 9 : 8;  // 👈 미국이면 9번째, 아니면 8번째
+                
                 const row = {
                     date: values[0]?.replace(/"/g, '').trim(),
-                    account: values[2]?.replace(/"/g, '').trim(),
+                    account: account,
                     category: values[3]?.replace(/"/g, '').trim(),
                     stockName: values[4]?.replace(/"/g, '').trim(),
                     code: values[5]?.replace(/"/g, '').trim(),
                     type: values[6]?.replace(/"/g, '').trim(),
                     quantity: parseInt(values[7]?.replace(/"/g, '').replace(/,/g, '')) || 0,
-                    price: parseInt(values[8]?.replace(/"/g, '').replace(/,/g, '')) || 0,
+                    price: parseFloat(values[priceIndex]?.replace(/"/g, '').replace(/,/g, '')) || 0,  // 👈 수정
                     prevClose: 0
                 };
                 
