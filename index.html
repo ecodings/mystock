@@ -281,7 +281,22 @@
             font-weight: bold;
             color: #6c757d;
         }
+
+        .month-nav-btn {
+            background: #ecf0f1;
+            color: #2c3e50;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
         
+        .month-nav-btn:hover {
+            background: #bdc3c7;
+        }
         .calendar-day {
             aspect-ratio: 1.4;
             border: 1px solid #e9ecef;
@@ -516,8 +531,10 @@
                 <div class="calendar-header">
                     <button class="filter-btn active" id="allFilterBtn" onclick="selectFilter('all')">전체</button>
                     <div class="date-selector">
+                        <button class="month-nav-btn" onclick="prevMonth()">◀</button>
                         <select id="yearSelect" onchange="updateCalendar()"></select>
                         <select id="monthSelect" onchange="updateCalendar()"></select>
+                        <button class="month-nav-btn" onclick="nextMonth()">▶</button>
                     </div>
                 </div>
                 
@@ -866,9 +883,22 @@
                 html += `<div class="account-section">`;
                 html += `<div class="account-title">${accountName}</div>`;
                 
-                Object.keys(accounts[accountName]).forEach(stockName => {
-                    const stock = accounts[accountName][stockName];
-                    if (stock.quantity <= 0) return;
+                // 종목을 평가금액 순으로 정렬
+                const stockList = Object.keys(accounts[accountName])
+                    .map(stockName => ({
+                        name: stockName,
+                        data: accounts[accountName][stockName]
+                    }))
+                    .filter(item => item.data.quantity > 0)
+                    .sort((a, b) => {
+                        const valueA = a.data.prevClose * a.data.quantity;
+                        const valueB = b.data.prevClose * b.data.quantity;
+                        return valueB - valueA; // 내림차순
+                    });
+                
+                stockList.forEach(item => {
+                    const stockName = item.name;
+                    const stock = item.data;
                     
                     const avgPrice = stock.totalBuy / stock.buyCount;
                     const currentValue = stock.prevClose * stock.quantity;
@@ -1073,6 +1103,39 @@
             document.getElementById('totalBuy').textContent = Math.floor(totalBuy/10000) + '만원';
             document.getElementById('totalSell').textContent = Math.floor(totalSell/10000) + '만원';
         }
+
+        // 이전 달로 이동
+        function prevMonth() {
+            let year = parseInt(document.getElementById('yearSelect').value);
+            let month = parseInt(document.getElementById('monthSelect').value);
+            
+            month--;
+            if (month < 1) {
+                month = 12;
+                year--;
+            }
+            
+            document.getElementById('yearSelect').value = year;
+            document.getElementById('monthSelect').value = month;
+            updateCalendar();
+        }
+        
+        // 다음 달로 이동
+        function nextMonth() {
+            let year = parseInt(document.getElementById('yearSelect').value);
+            let month = parseInt(document.getElementById('monthSelect').value);
+            
+            month++;
+            if (month > 12) {
+                month = 1;
+                year++;
+            }
+            
+            document.getElementById('yearSelect').value = year;
+            document.getElementById('monthSelect').value = month;
+            updateCalendar();
+        }
+
         
         // 날짜 선택
         function selectDate(dateStr) {
