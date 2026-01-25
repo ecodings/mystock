@@ -720,6 +720,10 @@
                     stock.buyCount += trade.quantity;
                 } else if (trade.type === '매도') {
                     stock.quantity -= trade.quantity;
+                    // 평균 단가로 매도 금액 차감
+                    const avgPrice = stock.totalBuy / stock.buyCount;
+                    stock.totalBuy -= avgPrice * trade.quantity;
+                    stock.buyCount -= trade.quantity;
                 }
             });
             
