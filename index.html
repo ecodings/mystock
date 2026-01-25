@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>주식 매매 일지</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -213,7 +214,17 @@
         .center-panel {
             display: flex;
             flex-direction: column;
+            gap: 20px;
             overflow: hidden;
+        }
+        
+        .calendar-section {
+            flex: 0 0 auto;
+        }
+        
+        .chart-section-center {
+            flex: 1;
+            min-height: 200px;
         }
         
         .calendar-header {
@@ -253,6 +264,22 @@
             font-size: 14px;
         }
         
+        .month-nav-btn {
+            background: #ecf0f1;
+            color: #2c3e50;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        
+        .month-nav-btn:hover {
+            background: #bdc3c7;
+        }
+        
         .current-stock-name {
             font-size: 20px;
             font-weight: bold;
@@ -281,22 +308,7 @@
             font-weight: bold;
             color: #6c757d;
         }
-
-        .month-nav-btn {
-            background: #ecf0f1;
-            color: #2c3e50;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-            transition: background 0.2s;
-        }
         
-        .month-nav-btn:hover {
-            background: #bdc3c7;
-        }
         .calendar-day {
             aspect-ratio: 1.4;
             border: 1px solid #e9ecef;
@@ -377,44 +389,33 @@
             font-weight: bold;
         }
         
-        .diary-section {
+        /* 도넛 차트 영역 */
+        .donut-chart-section {
+            display: flex;
+            gap: 10px;
+            height: 100%;
+        }
+        
+        .donut-chart-container {
             flex: 1;
             display: flex;
             flex-direction: column;
-            min-height: 150px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
         }
         
-        .diary-title {
-            font-size: 15px;
+        .donut-chart-title {
+            font-size: 16px;
             font-weight: bold;
+            color: #2c3e50;
             margin-bottom: 10px;
+            text-align: center;
         }
         
-        .diary-textarea {
+        .donut-chart-canvas {
             flex: 1;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            padding: 12px;
-            font-size: 14px;
-            resize: none;
-            font-family: inherit;
-            line-height: 1.6;
-        }
-        
-        .diary-save-btn {
-            margin-top: 10px;
-            background: #27ae60;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        
-        .diary-save-btn:hover {
-            background: #229954;
+            position: relative;
         }
         
         /* 우측 패널 */
@@ -425,8 +426,14 @@
         }
         
         .trade-detail-section {
-            flex: 1;
+            max-height: 65vh;
             overflow-y: auto;
+        }
+        
+        .diary-section-right {
+            max-height: 30vh;
+            display: flex;
+            flex-direction: column;
         }
         
         .detail-title {
@@ -487,9 +494,38 @@
             flex-wrap: wrap;
         }
         
-        .chart-section {
+        .diary-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .diary-textarea {
             flex: 1;
-            min-height: 250px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 14px;
+            resize: none;
+            font-family: inherit;
+            line-height: 1.6;
+            min-height: 150px;
+        }
+        
+        .diary-save-btn {
+            margin-top: 10px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .diary-save-btn:hover {
+            background: #229954;
         }
         
         .loading {
@@ -527,7 +563,7 @@
         
         <!-- 중앙 패널 -->
         <div class="center-panel">
-            <div class="panel" style="flex: 1; display: flex; flex-direction: column;">
+            <div class="panel calendar-section">
                 <div class="calendar-header">
                     <button class="filter-btn active" id="allFilterBtn" onclick="selectFilter('all')">전체</button>
                     <div class="date-selector">
@@ -563,11 +599,23 @@
                         <div class="summary-value profit-negative" id="totalSell">0원</div>
                     </div>
                 </div>
-                
-                <div class="diary-section">
-                    <div class="diary-title">📝 매매 일기</div>
-                    <textarea class="diary-textarea" id="diaryTextarea" placeholder="선택한 날짜의 일기를 작성하세요..."></textarea>
-                    <button class="diary-save-btn" onclick="saveDiary()">저장</button>
+            </div>
+            
+            <!-- 도넛 차트 영역 -->
+            <div class="panel chart-section-center">
+                <div class="donut-chart-section">
+                    <div class="donut-chart-container">
+                        <div class="donut-chart-title">종목 구성</div>
+                        <div class="donut-chart-canvas">
+                            <canvas id="stockDonutChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="donut-chart-container">
+                        <div class="donut-chart-title">ETF 구성</div>
+                        <div class="donut-chart-canvas">
+                            <canvas id="etfDonutChart"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -579,9 +627,10 @@
                 <div id="tradeDetailContainer"></div>
             </div>
             
-            <div class="panel chart-section">
-                <div class="detail-title">차트</div>
-                <div id="chartContainer" class="loading">차트 기능은<br>추후 업데이트 예정입니다</div>
+            <div class="panel diary-section-right">
+                <div class="diary-title">📝 매매 일기</div>
+                <textarea class="diary-textarea" id="diaryTextarea" placeholder="선택한 날짜의 일기를 작성하세요..."></textarea>
+                <button class="diary-save-btn" onclick="saveDiary()">저장</button>
             </div>
         </div>
     </div>
@@ -593,6 +642,8 @@
         let selectedDate = null;
         let currentYear = new Date().getFullYear();
         let currentMonth = new Date().getMonth() + 1;
+        let stockChart = null;
+        let etfChart = null;
         
         const SHEET_ID = '1AMJsDNUm0y_tFNC3zW3zbWPqFTovEyAl-cnhPnSokSo';
         const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
@@ -648,14 +699,13 @@
                 
                 console.log('총 거래 데이터:', tradeData.length, '개');
                 
-                // 기본은 전일 종가만 로드
                 await loadPrevClosePrices();
                 
                 renderAccounts();
                 updateCalendar();
+                renderDonutCharts();
                 loadDiary();
                 
-                // 전일 종가 버튼 활성화
                 document.getElementById('prevCloseBtn').classList.add('active');
                 document.getElementById('realtimeBtn').classList.remove('active');
                 
@@ -811,6 +861,7 @@
             await loadPrevClosePrices();
             renderAccounts();
             updateCalendar();
+            renderDonutCharts();
         }
         
         // 실시간 조회 모드
@@ -835,6 +886,7 @@
                 
                 renderAccounts();
                 updateCalendar();
+                renderDonutCharts();
                 
             } catch (error) {
                 console.error('실시간 조회 오류:', error);
@@ -860,7 +912,8 @@
                         totalBuy: 0,
                         buyCount: 0,
                         code: trade.code,
-                        prevClose: trade.prevClose
+                        prevClose: trade.prevClose,
+                        category: trade.category
                     };
                 }
                 
@@ -893,7 +946,7 @@
                     .sort((a, b) => {
                         const valueA = a.data.prevClose * a.data.quantity;
                         const valueB = b.data.prevClose * b.data.quantity;
-                        return valueB - valueA; // 내림차순
+                        return valueB - valueA;
                     });
                 
                 stockList.forEach(item => {
@@ -946,6 +999,181 @@
             container.innerHTML = html;
         }
         
+        // 도넛 차트 렌더링
+        function renderDonutCharts() {
+            const categoryData = {};
+            
+            // 계좌별로 구분하여 데이터 집계
+            tradeData.forEach(trade => {
+                if (!categoryData[trade.account]) {
+                    categoryData[trade.account] = {};
+                }
+                
+                const category = trade.category || '기타';
+                
+                if (!categoryData[trade.account][category]) {
+                    categoryData[trade.account][category] = {
+                        stocks: {}
+                    };
+                }
+                
+                if (!categoryData[trade.account][category].stocks[trade.stockName]) {
+                    categoryData[trade.account][category].stocks[trade.stockName] = {
+                        quantity: 0,
+                        totalBuy: 0,
+                        buyCount: 0,
+                        code: trade.code,
+                        prevClose: trade.prevClose
+                    };
+                }
+                
+                const stock = categoryData[trade.account][category].stocks[trade.stockName];
+                
+                if (trade.type === '매수') {
+                    stock.quantity += trade.quantity;
+                    stock.totalBuy += trade.price * trade.quantity;
+                    stock.buyCount += trade.quantity;
+                } else if (trade.type === '매도') {
+                    const currentAvgPrice = stock.totalBuy / stock.buyCount;
+                    stock.quantity -= trade.quantity;
+                    stock.totalBuy -= currentAvgPrice * trade.quantity;
+                    stock.buyCount -= trade.quantity;
+                }
+            });
+            
+            // 종목 계좌 데이터
+            const stockCategories = categoryData['종목'] || {};
+            const stockLabels = [];
+            const stockValues = [];
+            
+            Object.keys(stockCategories).forEach(category => {
+                let totalValue = 0;
+                Object.values(stockCategories[category].stocks).forEach(stock => {
+                    if (stock.quantity > 0) {
+                        totalValue += stock.prevClose * stock.quantity;
+                    }
+                });
+                if (totalValue > 0) {
+                    stockLabels.push(category);
+                    stockValues.push(totalValue);
+                }
+            });
+            
+            // ETF 계좌 데이터
+            const etfCategories = categoryData['ETF'] || {};
+            const etfLabels = [];
+            const etfValues = [];
+            
+            Object.keys(etfCategories).forEach(category => {
+                let totalValue = 0;
+                Object.values(etfCategories[category].stocks).forEach(stock => {
+                    if (stock.quantity > 0) {
+                        totalValue += stock.prevClose * stock.quantity;
+                    }
+                });
+                if (totalValue > 0) {
+                    etfLabels.push(category);
+                    etfValues.push(totalValue);
+                }
+            });
+            
+            // 종목 차트
+            const stockCtx = document.getElementById('stockDonutChart').getContext('2d');
+            if (stockChart) {
+                stockChart.destroy();
+            }
+            stockChart = new Chart(stockCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: stockLabels,
+                    datasets: [{
+                        data: stockValues,
+                        backgroundColor: [
+                            '#FF6384',
+                            '#36A2EB',
+                            '#FFCE56',
+                            '#4BC0C0',
+                            '#9966FF',
+                            '#FF9F40'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${Math.floor(value).toLocaleString()}원 (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // ETF 차트
+            const etfCtx = document.getElementById('etfDonutChart').getContext('2d');
+            if (etfChart) {
+                etfChart.destroy();
+            }
+            etfChart = new Chart(etfCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: etfLabels,
+                    datasets: [{
+                        data: etfValues,
+                        backgroundColor: [
+                            '#FF6384',
+                            '#36A2EB',
+                            '#FFCE56',
+                            '#4BC0C0',
+                            '#9966FF',
+                            '#FF9F40'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${Math.floor(value).toLocaleString()}원 (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
         // 종목 선택
         function selectStock(stockName, code) {
             selectedStock = stockName;
@@ -960,9 +1188,6 @@
             
             renderStockHistory(stockName);
             updateCalendar();
-            
-            document.getElementById('chartContainer').innerHTML = 
-                `<div class="loading">${stockName} 차트<br>추후 업데이트 예정</div>`;
         }
         
         // 전체 필터 선택
@@ -978,9 +1203,6 @@
                 document.getElementById('tradeHistoryProfit').innerHTML = '';
                 document.querySelector('.trade-history-title').textContent = '종목별 거래 내역';
                 updateCalendar();
-                
-                document.getElementById('chartContainer').innerHTML = 
-                    `<div class="loading">코스피 지수 차트<br>추후 업데이트 예정</div>`;
             }
         }
         
@@ -1034,6 +1256,38 @@
             });
             
             container.innerHTML = html;
+        }
+        
+        // 이전 달로 이동
+        function prevMonth() {
+            let year = parseInt(document.getElementById('yearSelect').value);
+            let month = parseInt(document.getElementById('monthSelect').value);
+            
+            month--;
+            if (month < 1) {
+                month = 12;
+                year--;
+            }
+            
+            document.getElementById('yearSelect').value = year;
+            document.getElementById('monthSelect').value = month;
+            updateCalendar();
+        }
+        
+        // 다음 달로 이동
+        function nextMonth() {
+            let year = parseInt(document.getElementById('yearSelect').value);
+            let month = parseInt(document.getElementById('monthSelect').value);
+            
+            month++;
+            if (month > 12) {
+                month = 1;
+                year++;
+            }
+            
+            document.getElementById('yearSelect').value = year;
+            document.getElementById('monthSelect').value = month;
+            updateCalendar();
         }
         
         // 달력 업데이트
@@ -1103,39 +1357,6 @@
             document.getElementById('totalBuy').textContent = Math.floor(totalBuy/10000) + '만원';
             document.getElementById('totalSell').textContent = Math.floor(totalSell/10000) + '만원';
         }
-
-        // 이전 달로 이동
-        function prevMonth() {
-            let year = parseInt(document.getElementById('yearSelect').value);
-            let month = parseInt(document.getElementById('monthSelect').value);
-            
-            month--;
-            if (month < 1) {
-                month = 12;
-                year--;
-            }
-            
-            document.getElementById('yearSelect').value = year;
-            document.getElementById('monthSelect').value = month;
-            updateCalendar();
-        }
-        
-        // 다음 달로 이동
-        function nextMonth() {
-            let year = parseInt(document.getElementById('yearSelect').value);
-            let month = parseInt(document.getElementById('monthSelect').value);
-            
-            month++;
-            if (month > 12) {
-                month = 1;
-                year++;
-            }
-            
-            document.getElementById('yearSelect').value = year;
-            document.getElementById('monthSelect').value = month;
-            updateCalendar();
-        }
-
         
         // 날짜 선택
         function selectDate(dateStr) {
