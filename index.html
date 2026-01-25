@@ -1609,10 +1609,10 @@
                 `;
                 
                 if (trades.buy > 0) {
-                    dayHtml += `<div class="day-buy">매수 ${trades.buyQty}주/${Math.floor(trades.buy/10000)}만</div>`;
+                    dayHtml += `<div class="day-buy">매수 ${trades.buyQty}주/${(trades.buy/10000).toFixed(1)}만</div>`;
                 }
                 if (trades.sell > 0) {
-                    dayHtml += `<div class="day-sell">매도 ${trades.sellQty}주/${Math.floor(trades.sell/10000)}만</div>`;
+                    dayHtml += `<div class="day-sell">매도 ${trades.sellQty}주/${(trades.sell/10000).toFixed(1)}만</div>`;
                 }
                 
                 dayHtml += `</div>`;
