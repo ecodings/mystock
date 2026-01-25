@@ -1000,179 +1000,438 @@
         }
         
         // 도넛 차트 렌더링
-        function renderDonutCharts() {
-            const categoryData = {};
-            
-            // 계좌별로 구분하여 데이터 집계
-            tradeData.forEach(trade => {
-                if (!categoryData[trade.account]) {
-                    categoryData[trade.account] = {};
-                }
-                
-                const category = trade.category || '기타';
-                
-                if (!categoryData[trade.account][category]) {
-                    categoryData[trade.account][category] = {
-                        stocks: {}
-                    };
-                }
-                
-                if (!categoryData[trade.account][category].stocks[trade.stockName]) {
-                    categoryData[trade.account][category].stocks[trade.stockName] = {
-                        quantity: 0,
-                        totalBuy: 0,
-                        buyCount: 0,
-                        code: trade.code,
-                        prevClose: trade.prevClose
-                    };
-                }
-                
-                const stock = categoryData[trade.account][category].stocks[trade.stockName];
-                
-                if (trade.type === '매수') {
-                    stock.quantity += trade.quantity;
-                    stock.totalBuy += trade.price * trade.quantity;
-                    stock.buyCount += trade.quantity;
-                } else if (trade.type === '매도') {
-                    const currentAvgPrice = stock.totalBuy / stock.buyCount;
-                    stock.quantity -= trade.quantity;
-                    stock.totalBuy -= currentAvgPrice * trade.quantity;
-                    stock.buyCount -= trade.quantity;
-                }
-            });
-            
-            // 종목 계좌 데이터
-            const stockCategories = categoryData['종목'] || {};
-            const stockLabels = [];
-            const stockValues = [];
-            
-            Object.keys(stockCategories).forEach(category => {
-                let totalValue = 0;
-                Object.values(stockCategories[category].stocks).forEach(stock => {
-                    if (stock.quantity > 0) {
-                        totalValue += stock.prevClose * stock.quantity;
-                    }
-                });
-                if (totalValue > 0) {
-                    stockLabels.push(category);
-                    stockValues.push(totalValue);
-                }
-            });
-            
-            // ETF 계좌 데이터
-            const etfCategories = categoryData['ETF'] || {};
-            const etfLabels = [];
-            const etfValues = [];
-            
-            Object.keys(etfCategories).forEach(category => {
-                let totalValue = 0;
-                Object.values(etfCategories[category].stocks).forEach(stock => {
-                    if (stock.quantity > 0) {
-                        totalValue += stock.prevClose * stock.quantity;
-                    }
-                });
-                if (totalValue > 0) {
-                    etfLabels.push(category);
-                    etfValues.push(totalValue);
-                }
-            });
-            
-            // 종목 차트
-            const stockCtx = document.getElementById('stockDonutChart').getContext('2d');
-            if (stockChart) {
-                stockChart.destroy();
-            }
-            stockChart = new Chart(stockCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: stockLabels,
-                    datasets: [{
-                        data: stockValues,
-                        backgroundColor: [
-                            '#FF6384',
-                            '#36A2EB',
-                            '#FFCE56',
-                            '#4BC0C0',
-                            '#9966FF',
-                            '#FF9F40'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                font: {
-                                    size: 11
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.parsed || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = ((value / total) * 100).toFixed(1);
-                                    return `${label}: ${Math.floor(value).toLocaleString()}원 (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-            
-            // ETF 차트
-            const etfCtx = document.getElementById('etfDonutChart').getContext('2d');
-            if (etfChart) {
-                etfChart.destroy();
-            }
-            etfChart = new Chart(etfCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: etfLabels,
-                    datasets: [{
-                        data: etfValues,
-                        backgroundColor: [
-                            '#FF6384',
-                            '#36A2EB',
-                            '#FFCE56',
-                            '#4BC0C0',
-                            '#9966FF',
-                            '#FF9F40'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                font: {
-                                    size: 11
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.parsed || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = ((value / total) * 100).toFixed(1);
-                                    return `${label}: ${Math.floor(value).toLocaleString()}원 (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+        // 도넛 차트 렌더링
+function renderDonutCharts() {
+    const categoryData = {};
+    
+    // 계좌별로 구분하여 데이터 집계
+    tradeData.forEach(trade => {
+        if (!categoryData[trade.account]) {
+            categoryData[trade.account] = {};
         }
+        
+        const category = trade.category || '기타';
+        
+        if (!categoryData[trade.account][category]) {
+            categoryData[trade.account][category] = {
+                stocks: {}
+            };
+        }
+        
+        if (!categoryData[trade.account][category].stocks[trade.stockName]) {
+            categoryData[trade.account][category].stocks[trade.stockName] = {
+                quantity: 0,
+                totalBuy: 0,
+                buyCount: 0,
+                code: trade.code,
+                prevClose: trade.prevClose
+            };
+        }
+        
+        const stock = categoryData[trade.account][category].stocks[trade.stockName];
+        
+        if (trade.type === '매수') {
+            stock.quantity += trade.quantity;
+            stock.totalBuy += trade.price * trade.quantity;
+            stock.buyCount += trade.quantity;
+        } else if (trade.type === '매도') {
+            const currentAvgPrice = stock.totalBuy / stock.buyCount;
+            stock.quantity -= trade.quantity;
+            stock.totalBuy -= currentAvgPrice * trade.quantity;
+            stock.buyCount -= trade.quantity;
+        }
+    });
+    
+    // 색상 매핑 (같은 구분은 같은 색)
+    const colorMap = {
+        '지수': '#FF6384',
+        'AI': '#36A2EB',
+        '반도체': '#FFCE56',
+        '방산': '#4BC0C0',
+        '조선': '#9966FF',
+        '기타': '#FF9F40'
+    };
+    
+    // 종목 계좌 데이터
+    const stockCategories = categoryData['종목'] || {};
+    const stockLabels = [];
+    const stockValues = [];
+    const stockColors = [];
+    
+    Object.keys(stockCategories).forEach(category => {
+        let totalValue = 0;
+        Object.values(stockCategories[category].stocks).forEach(stock => {
+            if (stock.quantity > 0) {
+                totalValue += stock.prevClose * stock.quantity;
+            }
+        });
+        if (totalValue > 0) {
+            stockLabels.push(category);
+            stockValues.push(totalValue);
+            stockColors.push(colorMap[category] || '#95A5A6');
+        }
+    });
+    
+    // ETF 계좌 데이터
+    const etfCategories = categoryData['ETF'] || {};
+    const etfLabels = [];
+    const etfValues = [];
+    const etfColors = [];
+    
+    Object.keys(etfCategories).forEach(category => {
+        let totalValue = 0;
+        Object.values(etfCategories[category].stocks).forEach(stock => {
+            if (stock.quantity > 0) {
+                totalValue += stock.prevClose * stock.quantity;
+            }
+        });
+        if (totalValue > 0) {
+            etfLabels.push(category);
+            etfValues.push(totalValue);
+            etfColors.push(colorMap[category] || '#95A5A6');
+        }
+    });
+    
+    // 공통 차트 옵션
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    font: {
+                        size: 12
+                    },
+                    padding: 10
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const label = context.label || '';
+                        const value = context.parsed || 0;
+                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                        const percentage = ((value / total) * 100).toFixed(1);
+                        return `${label}: ${Math.floor(value).toLocaleString()}원 (${percentage}%)`;
+                    }
+                }
+            },
+            datalabels: {
+                color: '#fff',
+                font: {
+                    weight: 'bold',
+                    size: 14
+                },
+                formatter: (value, ctx) => {
+                    const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                    const percentage = ((value / total) * 100).toFixed(1);
+                    return percentage > 5 ? percentage + '%' : ''; // 5% 이상만 표시
+                }
+            }
+        }
+    };
+    
+    // 종목 차트
+    function renderDonutCharts() {
+    const categoryData = {};
+    
+    // 계좌별로 구분하여 데이터 집계
+    tradeData.forEach(trade => {
+        if (!categoryData[trade.account]) {
+            categoryData[trade.account] = {};
+        }
+        
+        const category = trade.category || '기타';
+        
+        if (!categoryData[trade.account][category]) {
+            categoryData[trade.account][category] = {
+                stocks: {}
+            };
+        }
+        
+        if (!categoryData[trade.account][category].stocks[trade.stockName]) {
+            categoryData[trade.account][category].stocks[trade.stockName] = {
+                quantity: 0,
+                totalBuy: 0,
+                buyCount: 0,
+                code: trade.code,
+                prevClose: trade.prevClose
+            };
+        }
+        
+        const stock = categoryData[trade.account][category].stocks[trade.stockName];
+        
+        if (trade.type === '매수') {
+            stock.quantity += trade.quantity;
+            stock.totalBuy += trade.price * trade.quantity;
+            stock.buyCount += trade.quantity;
+        } else if (trade.type === '매도') {
+            const currentAvgPrice = stock.totalBuy / stock.buyCount;
+            stock.quantity -= trade.quantity;
+            stock.totalBuy -= currentAvgPrice * trade.quantity;
+            stock.buyCount -= trade.quantity;
+        }
+    });
+    
+    // 색상 매핑 (같은 구분은 같은 색)
+    const colorMap = {
+        '지수': '#FF6384',
+        'AI': '#36A2EB',
+        '반도체': '#FFCE56',
+        '방산': '#4BC0C0',
+        '조선': '#9966FF',
+        '기타': '#FF9F40'
+    };
+    
+    // 종목 계좌 데이터
+    const stockCategories = categoryData['종목'] || {};
+    const stockLabels = [];
+    const stockValues = [];
+    const stockColors = [];
+    
+    Object.keys(stockCategories).forEach(category => {
+        let totalValue = 0;
+        Object.values(stockCategories[category].stocks).forEach(stock => {
+            if (stock.quantity > 0) {
+                totalValue += stock.prevClose * stock.quantity;
+            }
+        });
+        if (totalValue > 0) {
+            stockLabels.push(category);
+            stockValues.push(totalValue);
+            stockColors.push(colorMap[category] || '#95A5A6');
+        }
+    });
+    
+    // ETF 계좌 데이터
+    const etfCategories = categoryData['ETF'] || {};
+    const etfLabels = [];
+    const etfValues = [];
+    const etfColors = [];
+    
+    Object.keys(etfCategories).forEach(category => {
+        let totalValue = 0;
+        Object.values(etfCategories[category].stocks).forEach(stock => {
+            if (stock.quantity > 0) {
+                totalValue += stock.prevClose * stock.quantity;
+            }
+        });
+        if (totalValue > 0) {
+            etfLabels.push(category);
+            etfValues.push(totalValue);
+            etfColors.push(colorMap[category] || '#95A5A6');
+        }
+    });
+    
+    // 공통 차트 옵션
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    font: {
+                        size: 12
+                    },
+                    padding: 10
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const label = context.label || '';
+                        const value = context.parsed || 0;
+                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                        const percentage = ((value / total) * 100).toFixed(1);
+                        return `${label}: ${Math.floor(value).toLocaleString()}원 (${percentage}%)`;
+                    }
+                }
+            },
+            datalabels: {
+                color: '#fff',
+                font: {
+                    weight: 'bold',
+                    size: 14
+                },
+                formatter: (value, ctx) => {
+                    const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                    const percentage = ((value / total) * 100).toFixed(1);
+                    return percentage > 5 ? percentage + '%' : ''; // 5% 이상만 표시
+                }
+            }
+        }
+    };
+    
+    // 종목 차트
+   function renderDonutCharts() {
+        const categoryData = {};
+        
+        // 계좌별로 구분하여 데이터 집계
+        tradeData.forEach(trade => {
+            if (!categoryData[trade.account]) {
+                categoryData[trade.account] = {};
+            }
+            
+            const category = trade.category || '기타';
+            
+            if (!categoryData[trade.account][category]) {
+                categoryData[trade.account][category] = {
+                    stocks: {}
+                };
+            }
+            
+            if (!categoryData[trade.account][category].stocks[trade.stockName]) {
+                categoryData[trade.account][category].stocks[trade.stockName] = {
+                    quantity: 0,
+                    totalBuy: 0,
+                    buyCount: 0,
+                    code: trade.code,
+                    prevClose: trade.prevClose
+                };
+            }
+            
+            const stock = categoryData[trade.account][category].stocks[trade.stockName];
+            
+            if (trade.type === '매수') {
+                stock.quantity += trade.quantity;
+                stock.totalBuy += trade.price * trade.quantity;
+                stock.buyCount += trade.quantity;
+            } else if (trade.type === '매도') {
+                const currentAvgPrice = stock.totalBuy / stock.buyCount;
+                stock.quantity -= trade.quantity;
+                stock.totalBuy -= currentAvgPrice * trade.quantity;
+                stock.buyCount -= trade.quantity;
+            }
+        });
+        
+        // 색상 매핑 (같은 구분은 같은 색)
+        const colorMap = {
+            '지수': '#FF6384',
+            'AI': '#36A2EB',
+            '반도체': '#FFCE56',
+            '방산': '#4BC0C0',
+            '조선': '#9966FF',
+            '기타': '#FF9F40'
+        };
+        
+        // 종목 계좌 데이터
+        const stockCategories = categoryData['종목'] || {};
+        const stockLabels = [];
+        const stockValues = [];
+        const stockColors = [];
+        
+        Object.keys(stockCategories).forEach(category => {
+            let totalValue = 0;
+            Object.values(stockCategories[category].stocks).forEach(stock => {
+                if (stock.quantity > 0) {
+                    totalValue += stock.prevClose * stock.quantity;
+                }
+            });
+            if (totalValue > 0) {
+                stockLabels.push(category);
+                stockValues.push(totalValue);
+                stockColors.push(colorMap[category] || '#95A5A6');
+            }
+        });
+        
+        // ETF 계좌 데이터
+        const etfCategories = categoryData['ETF'] || {};
+        const etfLabels = [];
+        const etfValues = [];
+        const etfColors = [];
+        
+        Object.keys(etfCategories).forEach(category => {
+            let totalValue = 0;
+            Object.values(etfCategories[category].stocks).forEach(stock => {
+                if (stock.quantity > 0) {
+                    totalValue += stock.prevClose * stock.quantity;
+                }
+            });
+            if (totalValue > 0) {
+                etfLabels.push(category);
+                etfValues.push(totalValue);
+                etfColors.push(colorMap[category] || '#95A5A6');
+            }
+        });
+        
+        // 공통 차트 옵션
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: {
+                            size: 12
+                        },
+                        padding: 10
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ${Math.floor(value).toLocaleString()}원 (${percentage}%)`;
+                        }
+                    }
+                },
+                datalabels: {
+                    color: '#fff',
+                    font: {
+                        weight: 'bold',
+                        size: 14
+                    },
+                    formatter: (value, ctx) => {
+                        const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                        const percentage = ((value / total) * 100).toFixed(1);
+                        return percentage > 5 ? percentage + '%' : ''; // 5% 이상만 표시
+                    }
+                }
+            }
+        };
+        
+        // 종목 차트
+        const stockCtx = document.getElementById('stockDonutChart').getContext('2d');
+        if (stockChart) {
+            stockChart.destroy();
+        }
+        stockChart = new Chart(stockCtx, {
+            type: 'doughnut',
+            data: {
+                labels: stockLabels,
+                datasets: [{
+                    data: stockValues,
+                    backgroundColor: stockColors
+                }]
+            },
+            options: commonOptions,
+            plugins: [ChartDataLabels]
+        });
+        
+        // ETF 차트
+        const etfCtx = document.getElementById('etfDonutChart').getContext('2d');
+        if (etfChart) {
+            etfChart.destroy();
+        }
+        etfChart = new Chart(etfCtx, {
+            type: 'doughnut',
+            data: {
+                labels: etfLabels,
+                datasets: [{
+                    data: etfValues,
+                    backgroundColor: etfColors
+                }]
+            },
+            options: commonOptions,
+            plugins: [ChartDataLabels]
+        });
+    }
         
         // 종목 선택
         function selectStock(stockName, code) {
