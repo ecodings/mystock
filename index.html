@@ -1144,16 +1144,18 @@
                 
                 console.log('총 거래 데이터:', tradeData.length, '개');
                 
-                // 1. 먼저 stock_prices.json에서 로드 (백업용)
+                // 1. 먼저 전일 종가 로드 (백업)
                 await loadPrevClosePrices();
                 
-                // 2. 실시간 가격 조회 시도
-                const successCount = await fetchRealtimePrices();
-                
-                if (successCount > 0) {
-                    console.log('✅ 실시간 가격 적용 완료!');
-                } else {
-                    console.log('⚠️ 실시간 조회 실패, 전일 종가 사용');
+                // 2. 실시간 조회 시도 (실패해도 전일 종가 사용)
+                try {
+                    const successCount = await fetchRealtimePrices();
+                    if (successCount > 0) {
+                        console.log(`✅ ${successCount}개 종목 실시간 가격 적용!`);
+                    }
+                } catch (error) {
+                    console.error('⚠️ 실시간 조회 중 오류:', error);
+                    console.log('📊 전일 종가로 계속 진행합니다.');
                 }
                 
                 renderAccounts();
@@ -1261,8 +1263,7 @@
             
             for (const code of codes) {
                 try {
-                    // Alpha Vantage API 호출 (한국 주식은 .KS 또는 .KQ 붙임)
-                    const exchange = code.startsWith('0') ? 'KQ' : 'KS'; // 코스닥은 0으로 시작
+                    const exchange = code.startsWith('0') ? 'KQ' : 'KS';
                     const symbol = `${code}.${exchange}`;
                     
                     const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${ALPHA_VANTAGE_API_KEY}`;
@@ -1283,19 +1284,25 @@
                         console.log(`✅ ${code}: ${price}원`);
                     } else {
                         failCount++;
-                        console.warn(`⚠️ ${code}: 가격 조회 실패`);
+                        console.warn(`⚠️ ${code}: 가격 조회 실패 (전일 종가 사용)`);
+                        // 조회 실패 시 이미 loadPrevClosePrices()에서 설정한 값 유지
                     }
                     
-                    // API 제한 회피를 위해 약간의 지연
                     await new Promise(resolve => setTimeout(resolve, 500));
                     
                 } catch (error) {
                     failCount++;
-                    console.error(`❌ ${code} 조회 오류:`, error);
+                    console.error(`❌ ${code} 조회 오류 (전일 종가 사용):`, error.message);
+                    // 오류 발생 시에도 이미 설정된 전일 종가 유지
                 }
             }
             
             console.log(`📊 실시간 조회 완료: 성공 ${successCount}개, 실패 ${failCount}개`);
+            
+            if (successCount === 0) {
+                console.log('⚠️ 실시간 조회 전체 실패 - stock_prices.json의 전일 종가 사용');
+            }
+            
             return successCount;
         }
         
