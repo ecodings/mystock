@@ -736,7 +736,7 @@
                     const stock = accounts[accountName][stockName];
                     if (stock.quantity <= 0) return;
                     
-                    const avgPrice = stock.totalBuy / (stock.buyCount - (totalBuy - stock.quantity));
+                    const avgPrice = stock.totalBuy / stock.buyCount;
                     const currentValue = stock.prevClose * stock.quantity;
                     const profit = currentValue - (avgPrice * stock.quantity);
                     const profitRate = (profit / (avgPrice * stock.quantity) * 100).toFixed(2);
@@ -903,25 +903,31 @@
             let totalSell = 0;
             
             tradeData.forEach(trade => {
-                if (selectedStock && trade.stockName !== selectedStock) return;
-                
-                const tradeDate = new Date(trade.date);
-                if (tradeDate.getFullYear() !== year || tradeDate.getMonth() + 1 !== month) return;
-                
-                const day = tradeDate.getDate();
-                if (!dailyTrades[day]) {
-                    dailyTrades[day] = { buy: 0, sell: 0, buyQty: 0, sellQty: 0 };
+                if (!accounts[trade.account]) {
+                    accounts[trade.account] = {};
+                }
+                if (!accounts[trade.account][trade.stockName]) {
+                    accounts[trade.account][trade.stockName] = {
+                        quantity: 0,
+                        totalBuy: 0,
+                        buyCount: 0,
+                        code: trade.code,
+                        prevClose: trade.prevClose
+                    };
                 }
                 
-                const amount = trade.price * trade.quantity;
+                const stock = accounts[trade.account][trade.stockName];
+                
                 if (trade.type === '매수') {
-                    dailyTrades[day].buy += amount;
-                    dailyTrades[day].buyQty += trade.quantity;
-                    totalBuy += amount;
-                } else {
-                    dailyTrades[day].sell += amount;
-                    dailyTrades[day].sellQty += trade.quantity;
-                    totalSell += amount;
+                    stock.quantity += trade.quantity;
+                    stock.totalBuy += trade.price * trade.quantity;
+                    stock.buyCount += trade.quantity;
+                } else if (trade.type === '매도') {
+                    // 매도 시 평균 단가로 차감
+                    const currentAvgPrice = stock.totalBuy / stock.buyCount;
+                    stock.quantity -= trade.quantity;
+                    stock.totalBuy -= currentAvgPrice * trade.quantity;
+                    stock.buyCount -= trade.quantity;
                 }
             });
             
