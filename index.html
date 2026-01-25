@@ -697,7 +697,7 @@
         // 계좌 현황 렌더링
         function renderAccounts() {
             const container = document.getElementById('accountsContainer');
-            const accounts = {}; //
+            const accounts = {};
             
             tradeData.forEach(trade => {
                 if (!accounts[trade.account]) {
@@ -714,15 +714,16 @@
                 }
                 
                 const stock = accounts[trade.account][trade.stockName];
+                
                 if (trade.type === '매수') {
                     stock.quantity += trade.quantity;
                     stock.totalBuy += trade.price * trade.quantity;
                     stock.buyCount += trade.quantity;
                 } else if (trade.type === '매도') {
+                    // 매도 시 평균 단가로 차감
+                    const currentAvgPrice = stock.totalBuy / stock.buyCount;
                     stock.quantity -= trade.quantity;
-                    // 평균 단가로 매도 금액 차감
-                    const avgPrice = stock.totalBuy / stock.buyCount;
-                    stock.totalBuy -= avgPrice * trade.quantity;
+                    stock.totalBuy -= currentAvgPrice * trade.quantity;
                     stock.buyCount -= trade.quantity;
                 }
             });
@@ -749,28 +750,24 @@
                                 <span class="${profitClass}" style="font-size: 16px;">(${profitRate >= 0 ? '+' : ''}${profitRate}%)</span>
                             </div>
                             
-                            <!-- 첫 번째 줄: 라벨 -->
                             <div class="stock-info stock-info-label" style="margin-top: 8px;">
                                 <div>보유수량</div>
                                 <div>평균단가</div>
                                 <div>전일종가</div>
                             </div>
                             
-                            <!-- 첫 번째 줄: 값 -->
                             <div class="stock-info" style="margin-bottom: 8px;">
                                 <div>${stock.quantity}주</div>
                                 <div>${Math.floor(avgPrice).toLocaleString()}원</div>
                                 <div>${Math.floor(stock.prevClose).toLocaleString()}원</div>
                             </div>
                             
-                            <!-- 두 번째 줄: 라벨 -->
                             <div class="stock-info stock-info-label">
                                 <div>수익률</div>
                                 <div>평가손익</div>
                                 <div>평가금액</div>
                             </div>
                             
-                            <!-- 두 번째 줄: 값 -->
                             <div class="stock-info">
                                 <div class="${profitClass}">${profitRate >= 0 ? '+' : ''}${profitRate}%</div>
                                 <div class="${profitClass}">${profit >= 0 ? '+' : ''}${Math.floor(profit).toLocaleString()}원</div>
