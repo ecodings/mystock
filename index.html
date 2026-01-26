@@ -12,7 +12,6 @@
             padding: 0;
             box-sizing: border-box;
         }
-        html, body { height: 100%; }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
@@ -29,7 +28,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0;
+            margin-bottom: 20px;
         }
         
         .header h1 {
@@ -81,8 +80,7 @@
             grid-template-columns: 60% 40%;
             gap: 20px;
             padding: 0 20px 20px;
-            flex: 1;        /* ⭐ 남은 높이 전부 채움 */
-            min-height: 0;  /* ⭐ 내부 패널 스크롤 깨짐 방지 */
+            height: calc(100vh - 100px);
         }
         
         .panel {
@@ -94,24 +92,12 @@
         }
         
         /* 좌측 패널 */
-        .left-panel > :first-child{
-          flex: 4 1 0;
-          min-height: 0;
-          overflow: auto;   /* 내용 많아지면 스크롤 */
-        }
-
-        .left-panel > :first-child{
-          flex: 4 1 0;
-          min-height: 0;
-          overflow: auto;
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
         
-        /* 아래 패널 (종목별 거래 내역) */
-        .left-panel > :last-child{
-          flex: 1 1 0;
-          min-height: 0;
-          overflow: auto;
-        }
         .accounts-container {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;  /* 👈 3열 그리드 */
@@ -184,9 +170,7 @@
         }
         
         .trade-history {
-              flex: 4 1 0;
-              min-height: 0;
-              overflow: auto;
+            flex: 1;
         }
         
         .trade-history-title {
