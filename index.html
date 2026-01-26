@@ -1450,14 +1450,25 @@
             trades.forEach(trade => {
                 const totalAmount = trade.price * trade.quantity;
                 const typeColor = trade.type === '매수' ? '#e74c3c' : '#3498db';
+
+                // 미국 계좌 여부 확인
+                const isUS = trade.account === '미국';
+                const priceFormat = (price) => {
+                    if (isUS) {
+                        return '$' + price.toFixed(2);
+                    } else {
+                        return Math.floor(price).toLocaleString() + '원';
+                    }
+                };
+                
                 html += `
                     <div class="trade-item">
                         <div class="trade-date">${trade.date}</div>
                         <div style="color: ${typeColor}; font-weight: 600; margin-bottom: 4px;">
                             ${trade.type} ${trade.quantity}주
                         </div>
-                        <div>단가: ${Math.floor(trade.price).toLocaleString()}원</div>
-                        <div style="font-weight: 600; margin-top: 4px;">총액: ${Math.floor(totalAmount).toLocaleString()}원</div>
+                        <div>단가: ${priceFormat(trade.price)}</div>
+                        <div style="font-weight: 600; margin-top: 4px;">총액: ${priceFormat(totalAmount)}</div>
                     </div>
                 `;
             });
@@ -1657,18 +1668,23 @@
             // Google Sheets에서 불러온 일기
             const sheetContent = diaryData[convertedDate] || '';
             
-            // localStorage에서 불러오기 (Google Sheets보다 우선)
+            // localStorage에서 불러오기 시도 (있으면 우선 사용)
+            let content = sheetContent;
             try {
-                const result = await window.storage.get(`diary_${selectedDate}`);
-                const content = result?.value || sheetContent;
-                document.getElementById('diaryTextarea').value = content;
-                lastDiaryContent = content;
-                unsavedDiary = false;
+                if (window.storage && window.storage.get) {
+                    const result = await window.storage.get(`diary_${selectedDate}`);
+                    if (result && result.value) {
+                        content = result.value;
+                    }
+                }
             } catch (error) {
-                document.getElementById('diaryTextarea').value = sheetContent;
-                lastDiaryContent = sheetContent;
-                unsavedDiary = false;
+                // 로컬 스토리지 없으면 시트 데이터 사용
+                console.log('로컬 스토리지 없음, 시트 데이터 사용');
             }
+            
+            document.getElementById('diaryTextarea').value = content;
+            lastDiaryContent = content;
+            unsavedDiary = false;
         }
         
         // 일기 내용 변경 감지
@@ -1706,7 +1722,7 @@
                 
                 console.log('변환된 날짜:', convertedDate);
                 
-                // Google Sheets에 저장 시도
+                // Google Sheets에 저장
                 fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     headers: {
@@ -1722,8 +1738,14 @@
                     console.error('Apps Script 오류:', err);
                 });
                 
-                // 로컬에도 저장
-                await window.storage.set(`diary_${selectedDate}`, content);
+                // 로컬에도 저장 (window.storage가 있으면)
+                try {
+                    if (window.storage && window.storage.set) {
+                        await window.storage.set(`diary_${selectedDate}`, content);
+                    }
+                } catch (e) {
+                    console.log('로컬 저장 스킵:', e);
+                }
                 
                 lastDiaryContent = content;
                 unsavedDiary = false;
@@ -1733,7 +1755,7 @@
                 // diary 데이터 새로고침
                 setTimeout(async () => {
                     await loadDiaryData();
-                }, 2000); // 2초 후 새로고침
+                }, 2000);
                 
             } catch (error) {
                 console.error('저장 실패:', error);
