@@ -824,32 +824,33 @@
                 const text = await response.text();
                 const lines = text.trim().split('\n');
                 
-                console.log('diary 시트 첫 줄:', lines[0]);
-                
                 diaryData = {};
                 for (let i = 1; i < lines.length; i++) {
-                    const line = lines[i].trim();
+                    const line = lines[i];
                     if (!line) continue;
                     
-                    // CSV 파싱
+                    // CSV 파싱 (줄바꿈 포함)
                     const values = [];
                     let current = '';
                     let inQuotes = false;
                     
-                    for (let char of line) {
+                    for (let j = 0; j < line.length; j++) {
+                        const char = line[j];
+                        
                         if (char === '"') {
                             inQuotes = !inQuotes;
                         } else if (char === ',' && !inQuotes) {
-                            values.push(current.replace(/^"|"$/g, '').trim());
+                            values.push(current.replace(/^"|"$/g, ''));
                             current = '';
                         } else {
                             current += char;
                         }
                     }
-                    values.push(current.replace(/^"|"$/g, '').trim());
+                    values.push(current.replace(/^"|"$/g, ''));
                     
                     if (values[0] && values[1]) {
-                        const dateStr = values[0];
+                        const dateStr = values[0].trim();
+                        // 줄바꿈 복원 (Google Sheets에서 줄바꿈은 그대로 유지됨)
                         const content = values[1];
                         diaryData[dateStr] = content;
                     }
@@ -1556,21 +1557,46 @@
                 const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const trades = dailyTrades[day] || { buy: 0, sell: 0, buyQty: 0, sellQty: 0 };
                 
+                // 미국 종목인지 확인
+                let isUS = false;
+                if (selectedStock) {
+                const stockTrades = tradeData.filter(t => t.stockName === selectedStock);
+                if (stockTrades.length > 0 && stockTrades[0].account === '미국') {
+                    document.getElementById('totalBuy').textContent = '$' + totalBuy.toFixed(2);
+                    document.getElementById('totalSell').textContent = '$' + totalSell.toFixed(2);
+                } else {
+                    document.getElementById('totalBuy').textContent = Math.floor(totalBuy/10000) + '만원';
+                    document.getElementById('totalSell').textContent = Math.floor(totalSell/10000) + '만원';
+                }
+            } else {
+                document.getElementById('totalBuy').textContent = Math.floor(totalBuy/10000) + '만원';
+                document.getElementById('totalSell').textContent = Math.floor(totalSell/10000) + '만원';
+            }
+                
                 let dayHtml = `
                     <div class="calendar-day${selectedDate === dateStr ? ' active' : ''}" onclick="selectDate('${dateStr}')">
                         <div class="day-number">${day}</div>
                 `;
                 
                 if (trades.buy > 0) {
-                    dayHtml += `<div class="day-buy">매수 ${trades.buyQty}주/${(trades.buy/10000).toFixed(1)}만</div>`;
+                    if (isUS) {
+                        dayHtml += `<div class="day-buy">매수 ${trades.buyQty}주/$${(trades.buy).toFixed(2)}</div>`;
+                    } else {
+                        dayHtml += `<div class="day-buy">매수 ${trades.buyQty}주/${(trades.buy/10000).toFixed(1)}만</div>`;
+                    }
                 }
                 if (trades.sell > 0) {
-                    dayHtml += `<div class="day-sell">매도 ${trades.sellQty}주/${(trades.sell/10000).toFixed(1)}만</div>`;
+                    if (isUS) {
+                        dayHtml += `<div class="day-sell">매도 ${trades.sellQty}주/$${(trades.sell).toFixed(2)}</div>`;
+                    } else {
+                        dayHtml += `<div class="day-sell">매도 ${trades.sellQty}주/${(trades.sell/10000).toFixed(1)}만</div>`;
+                    }
                 }
                 
                 dayHtml += `</div>`;
                 grid.innerHTML += dayHtml;
             }
+
             
             document.getElementById('totalBuy').textContent = Math.floor(totalBuy/10000) + '만원';
             document.getElementById('totalSell').textContent = Math.floor(totalSell/10000) + '만원';
