@@ -720,7 +720,7 @@
         let usChart = null;
         
         const SHEET_ID = '1AMJsDNUm0y_tFNC3zW3zbWPqFTovEyAl-cnhPnSokSo';
-        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQnvayNXW-vM8MpG490_EmlbwJWb7d5sWshz6W_YK4zrBMb1vNKLiOZK254phq-cgofWhZ8a45NxlZ/pub?gid=0&single=true&output=csv';
         
         // Alpha Vantage API 키
         const ALPHA_VANTAGE_API_KEY = 'YOUR_API_KEY_HERE';
@@ -792,6 +792,7 @@
                 console.log('총 거래 데이터:', tradeData.length, '개');
                 
                 await loadPrevClosePrices();
+                await loadDiaryData();  // 👈 일기 데이터 로드 추가
                 
                 renderAccounts();
                 updateCalendar();
@@ -804,6 +805,54 @@
             } catch (error) {
                 console.error('데이터 로드 실패:', error);
                 alert('데이터를 불러오는데 실패했습니다: ' + error.message);
+            }
+        }
+        
+        // 일기 데이터 로드
+        let diaryData = {};
+        
+        async function loadDiaryData() {
+            const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQnvayNXW-vM8MpG490_EmlbwJWb7d5sWshz6W_YK4zrBMb1vNKLiOZK254phq-cgofWhZ8a45NxlZ/pub?gid=744555707&single=true&output=csv';
+            
+            try {
+                const response = await fetch(url);
+                const text = await response.text();
+                const lines = text.trim().split('\n');
+                
+                console.log('diary 시트 첫 줄:', lines[0]);
+                
+                diaryData = {};
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    
+                    // CSV 파싱
+                    const values = [];
+                    let current = '';
+                    let inQuotes = false;
+                    
+                    for (let char of line) {
+                        if (char === '"') {
+                            inQuotes = !inQuotes;
+                        } else if (char === ',' && !inQuotes) {
+                            values.push(current.replace(/^"|"$/g, '').trim());
+                            current = '';
+                        } else {
+                            current += char;
+                        }
+                    }
+                    values.push(current.replace(/^"|"$/g, '').trim());
+                    
+                    if (values[0] && values[1]) {
+                        const dateStr = values[0];
+                        const content = values[1];
+                        diaryData[dateStr] = content;
+                    }
+                }
+                
+                console.log('일기 데이터 로드 완료:', Object.keys(diaryData).length + '건');
+            } catch (error) {
+                console.error('일기 데이터 로드 실패:', error);
             }
         }
         
@@ -872,6 +921,8 @@
         async function loadPrevClosePrices() {
             try {
                 const response = await fetch('stock_prices.json');
+                if (!response.ok) throw new Error('파일 없음');
+                
                 const data = await response.json();
                 
                 console.log('📊 가격 데이터 로드:', data.updated_at);
@@ -886,9 +937,9 @@
                 
                 console.log('✅ 전일 종가 적용 완료');
             } catch (error) {
-                console.error('❌ 가격 데이터 로드 실패:', error);
+                console.log('⚠️ stock_prices.json 없음 - 매수가 기준 사용');
                 tradeData.forEach(trade => {
-                    trade.prevClose = trade.price * 0.98;
+                    trade.prevClose = trade.price;
                 });
             }
         }
@@ -1585,12 +1636,9 @@
                 return;
             }
             
-            try {
-                const result = await window.storage.get(`diary_${selectedDate}`);
-                document.getElementById('diaryTextarea').value = result?.value || '';
-            } catch (error) {
-                document.getElementById('diaryTextarea').value = '';
-            }
+            // diaryData에서 해당 날짜의 일기 불러오기
+            const content = diaryData[selectedDate] || '';
+            document.getElementById('diaryTextarea').value = content;
         }
         
         // 일기 저장
@@ -1602,13 +1650,7 @@
             
             const content = document.getElementById('diaryTextarea').value;
             
-            try {
-                await window.storage.set(`diary_${selectedDate}`, content);
-                alert('저장되었습니다.');
-            } catch (error) {
-                console.error('저장 실패:', error);
-                alert('저장에 실패했습니다.');
-            }
+            alert('일기 저장은 Google Sheets에서 직접 수정해주세요.\n\n날짜: ' + selectedDate + '\n내용: ' + content);
         }
         
         window.onload = init;
