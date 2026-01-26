@@ -1246,6 +1246,7 @@
                             boxWidth: 15,
                             generateLabels: function(chart) {
                                 const data = chart.data;
+                                if (!data.labels || !data.datasets[0]) return [];
                                 return data.labels.map((label, i) => {
                                     const value = data.datasets[0].data[i];
                                     const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
@@ -1261,6 +1262,7 @@
                         }
                     },
                     tooltip: {
+                        enabled: true,
                         backgroundColor: 'rgba(0, 0, 0, 0.8)',
                         titleFont: {
                             size: 18,
@@ -1344,24 +1346,26 @@
                 }
             });
             
-            const stockCtx = document.getElementById('stockDonutChart').getContext('2d');
-            if (stockChart) {
-                stockChart.destroy();
+            const stockCtx = document.getElementById('stockDonutChart');
+            if (stockCtx) {
+                if (stockChart) {
+                    stockChart.destroy();
+                }
+                
+                if (stockLabels.length > 0) {
+                    stockChart = new Chart(stockCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: stockLabels,
+                            datasets: [{
+                                data: stockValues,
+                                backgroundColor: stockColors
+                            }]
+                        },
+                        options: commonOptions
+                    });
+                }
             }
-            
-            Chart.register(ChartDataLabels);
-            
-            stockChart = new Chart(stockCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: stockLabels,
-                    datasets: [{
-                        data: stockValues,
-                        backgroundColor: stockColors
-                    }]
-                },
-                options: commonOptions
-            });
             
             // ETF 차트
             const etfCategories = {};
@@ -1393,21 +1397,26 @@
                 }
             });
             
-            const etfCtx = document.getElementById('etfDonutChart').getContext('2d');
-            if (etfChart) {
-                etfChart.destroy();
+            const etfCtx = document.getElementById('etfDonutChart');
+            if (etfCtx) {
+                if (etfChart) {
+                    etfChart.destroy();
+                }
+                
+                if (etfLabels.length > 0) {
+                    etfChart = new Chart(etfCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: etfLabels,
+                            datasets: [{
+                                data: etfValues,
+                                backgroundColor: etfColors
+                            }]
+                        },
+                        options: commonOptions
+                    });
+                }
             }
-            etfChart = new Chart(etfCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: etfLabels,
-                    datasets: [{
-                        data: etfValues,
-                        backgroundColor: etfColors
-                    }]
-                },
-                options: commonOptions
-            });
             
             // 미국 차트
             const usCategories = {};
@@ -1439,21 +1448,26 @@
                 }
             });
             
-            const usCtx = document.getElementById('usDonutChart').getContext('2d');
-            if (usChart) {
-                usChart.destroy();
+            const usCtx = document.getElementById('usDonutChart');
+            if (usCtx) {
+                if (usChart) {
+                    usChart.destroy();
+                }
+                
+                if (usLabels.length > 0) {
+                    usChart = new Chart(usCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: usLabels,
+                            datasets: [{
+                                data: usValues,
+                                backgroundColor: usColors
+                            }]
+                        },
+                        options: commonOptions
+                    });
+                }
             }
-            usChart = new Chart(usCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: usLabels,
-                    datasets: [{
-                        data: usValues,
-                        backgroundColor: usColors
-                    }]
-                },
-                options: commonOptions
-            });
         }
         
         // 종목 선택
