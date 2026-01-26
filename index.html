@@ -1692,17 +1692,34 @@
             }
             
             try {
-                // Google Sheets에 저장
-                const response = await fetch(APPS_SCRIPT_URL, {
+                console.log('저장 시작:', {date: selectedDate, content: content});
+                
+                // 날짜 형식 변환: 2026-01-26 → 26.01.26
+                let convertedDate = selectedDate;
+                if (selectedDate.includes('-')) {
+                    const parts = selectedDate.split('-');
+                    const year = parts[0].substring(2);
+                    const month = parts[1];
+                    const day = parts[2];
+                    convertedDate = `${year}.${month}.${day}`;
+                }
+                
+                console.log('변환된 날짜:', convertedDate);
+                
+                // Google Sheets에 저장 시도
+                fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'text/plain',
                     },
                     body: JSON.stringify({
-                        date: selectedDate,
+                        date: convertedDate,
                         content: content
                     })
+                }).then(() => {
+                    console.log('Apps Script 호출 완료');
+                }).catch(err => {
+                    console.error('Apps Script 오류:', err);
                 });
                 
                 // 로컬에도 저장
@@ -1711,14 +1728,16 @@
                 lastDiaryContent = content;
                 unsavedDiary = false;
                 
-                alert('저장되었습니다!\n\nGoogle Sheets의 diary 시트에 저장되었습니다.');
+                alert('저장되었습니다!');
                 
                 // diary 데이터 새로고침
-                await loadDiaryData();
+                setTimeout(async () => {
+                    await loadDiaryData();
+                }, 2000); // 2초 후 새로고침
                 
             } catch (error) {
                 console.error('저장 실패:', error);
-                alert('저장에 실패했습니다.');
+                alert('저장에 실패했습니다: ' + error.message);
             }
         }
         
