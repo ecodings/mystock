@@ -1576,6 +1576,7 @@
             });
             
             renderDateTradeDetails(dateStr);
+            loadDiary();  // 👈 일기 로드 추가
         }
         
         // 날짜별 거래 상세 렌더링
@@ -1636,8 +1637,13 @@
                 return;
             }
             
+            console.log('선택된 날짜:', selectedDate);
+            console.log('diaryData 키 목록:', Object.keys(diaryData));
+            
             // diaryData에서 해당 날짜의 일기 불러오기
             const content = diaryData[selectedDate] || '';
+            console.log('불러온 일기:', content);
+            
             document.getElementById('diaryTextarea').value = content;
         }
         
