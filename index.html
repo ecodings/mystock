@@ -1567,13 +1567,6 @@
         
         // 날짜 선택
         async function selectDate(dateStr) {
-            // 저장 안 된 일기가 있으면 먼저 저장 확인
-            if (unsavedDiary && selectedDate) {
-                if (confirm('저장하지 않은 일기가 있습니다. 저장하시겠습니까?')) {
-                    await saveDiary();
-                }
-            }
-            
             selectedDate = dateStr;
             selectedStock = null;
             
