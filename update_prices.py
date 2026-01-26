@@ -59,7 +59,7 @@ def get_korea_prev_close(code):
         
         if len(hist) >= 2:
             # 마지막에서 두번째 날의 종가
-            prev_close = hist['Close'].iloc[-2]
+            prev_close = hist['Close'].iloc[-1]
             return round(prev_close, 0)
         else:
             print(f"❌ {code}: 데이터 부족")
@@ -73,7 +73,7 @@ def get_korea_prev_close(code):
             hist = stock.history(period="5d")
             
             if len(hist) >= 2:
-                prev_close = hist['Close'].iloc[-2]
+                prev_close = hist['Close'].iloc[-1]
                 return round(prev_close, 0)
             else:
                 return None
@@ -91,7 +91,7 @@ def get_us_prev_close(ticker):
         
         if len(hist) >= 2:
             # 마지막에서 두번째 날의 종가 (USD)
-            prev_close = hist['Close'].iloc[-2]
+            prev_close = hist['Close'].iloc[-1]
             return round(prev_close, 2)  # 소수점 2자리
         else:
             print(f"❌ {ticker}: 데이터 부족")
