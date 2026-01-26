@@ -94,13 +94,24 @@
         }
         
         /* 좌측 패널 */
-        .left-panel {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            min-height: 0;   /* 내부 스크롤 정상화 */
+        .left-panel > :first-child{
+          flex: 4 1 0;
+          min-height: 0;
+          overflow: auto;   /* 내용 많아지면 스크롤 */
+        }
+
+        .left-panel > :first-child{
+          flex: 4 1 0;
+          min-height: 0;
+          overflow: auto;
         }
         
+        /* 아래 패널 (종목별 거래 내역) */
+        .left-panel > :last-child{
+          flex: 1 1 0;
+          min-height: 0;
+          overflow: auto;
+        }
         .accounts-container {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;  /* 👈 3열 그리드 */
