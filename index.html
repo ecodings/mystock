@@ -822,37 +822,60 @@
             try {
                 const response = await fetch(url);
                 const text = await response.text();
-                const lines = text.trim().split('\n');
                 
                 diaryData = {};
-                for (let i = 1; i < lines.length; i++) {
-                    const line = lines[i];
-                    if (!line) continue;
+                
+                // CSV를 줄바꿈 포함해서 파싱
+                let inQuotes = false;
+                let currentRow = [];
+                let currentCell = '';
+                
+                for (let i = 0; i < text.length; i++) {
+                    const char = text[i];
+                    const nextChar = text[i + 1];
                     
-                    // CSV 파싱 (줄바꿈 포함)
-                    const values = [];
-                    let current = '';
-                    let inQuotes = false;
-                    
-                    for (let j = 0; j < line.length; j++) {
-                        const char = line[j];
-                        
-                        if (char === '"') {
-                            inQuotes = !inQuotes;
-                        } else if (char === ',' && !inQuotes) {
-                            values.push(current.replace(/^"|"$/g, ''));
-                            current = '';
+                    if (char === '"') {
+                        if (inQuotes && nextChar === '"') {
+                            // 두 개의 따옴표는 하나의 따옴표로
+                            currentCell += '"';
+                            i++; // 다음 따옴표 건너뛰기
                         } else {
-                            current += char;
+                            // 따옴표 시작/끝
+                            inQuotes = !inQuotes;
                         }
+                    } else if (char === ',' && !inQuotes) {
+                        // 셀 구분
+                        currentRow.push(currentCell);
+                        currentCell = '';
+                    } else if (char === '\n' && !inQuotes) {
+                        // 행 구분
+                        currentRow.push(currentCell);
+                        
+                        // 첫 행(헤더)이 아니고, 최소 2개 컬럼이 있으면
+                        if (currentRow.length >= 2 && currentRow[0] !== '날짜') {
+                            const dateStr = currentRow[0].trim();
+                            const content = currentRow[1]; // trim 하지 않음 (공백 유지)
+                            if (dateStr && content) {
+                                diaryData[dateStr] = content;
+                            }
+                        }
+                        
+                        currentRow = [];
+                        currentCell = '';
+                    } else {
+                        currentCell += char;
                     }
-                    values.push(current.replace(/^"|"$/g, ''));
-                    
-                    if (values[0] && values[1]) {
-                        const dateStr = values[0].trim();
-                        // 줄바꿈 복원 (Google Sheets에서 줄바꿈은 그대로 유지됨)
-                        const content = values[1];
-                        diaryData[dateStr] = content;
+                }
+                
+                // 마지막 행 처리
+                if (currentCell || currentRow.length > 0) {
+                    currentRow.push(currentCell);
+                    if (currentRow.length >= 2 && currentRow[0] !== '날짜') {
+                        const dateStr = currentRow[0].trim();
+                        const content = currentRow[1];
+                        if (dateStr && content) {
+                            diaryData[dateStr] = content;
+                        }
                     }
                 }
                 
