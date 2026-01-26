@@ -1503,6 +1503,8 @@
             }
             
             container.style.display = 'grid';
+            container.style.gridTemplateColumns = 'repeat(5, 1fr)';
+            
             let html = '';
             trades.forEach(trade => {
                 const totalAmount = trade.price * trade.quantity;
@@ -1518,14 +1520,19 @@
                     }
                 };
                 
+                const itemClass = trade.type === '매수' ? 'buy-item' : 'sell-item';
+
                 html += `
-                    <div class="trade-item">
-                        <div class="trade-date">${trade.date}</div>
-                        <div style="color: ${typeColor}; font-weight: 600; margin-bottom: 4px;">
-                            ${trade.type} ${trade.quantity}주 (${trade.account})
+                    <div class="date-trade-detail ${itemClass}">
+                        <div>
+                            <span class="trade-type-box ${typeClass}">${trade.type}</span>
+                            <span class="trade-stock-name">${trade.date}</span>
                         </div>
-                        <div>단가: ${priceFormat(trade.price)}</div>
-                        <div style="font-weight: 600; margin-top: 4px;">총액: ${priceFormat(totalAmount)}</div>
+                        <div class="trade-detail-vertical">
+                            <div>수량: <strong>${trade.quantity}주 (${trade.account})</strong></div>
+                            <div>단가: <strong>${priceFormat(trade.price)}</strong></div>
+                            <div>총액: <strong>${priceFormat(totalAmount)}</strong></div>
+                        </div>
                     </div>
                 `;
             });
