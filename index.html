@@ -700,7 +700,7 @@
                 <!-- 탭 3: 매매일기 -->
                 <div class="tab-content" id="diaryTab">
                     <div class="diary-content">
-                        <textarea class="diary-textarea" id="diaryTextarea" placeholder="선택한 날짜의 일기를 작성하세요..."></textarea>
+                        <textarea class="diary-textarea" id="diaryTextarea" oninput="checkDiaryChanged()" placeholder="선택한 날짜의 일기를 작성하세요..."></textarea>
                         <button class="diary-save-btn" onclick="saveDiary()">저장</button>
                     </div>
                 </div>
@@ -718,9 +718,14 @@
         let stockChart = null;
         let etfChart = null;
         let usChart = null;
+        let unsavedDiary = false;  // 저장 안 된 일기 여부
+        let lastDiaryContent = '';  // 마지막 로드된 일기 내용
         
         const SHEET_ID = '1AMJsDNUm0y_tFNC3zW3zbWPqFTovEyAl-cnhPnSokSo';
         const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQnvayNXW-vM8MpG490_EmlbwJWb7d5sWshz6W_YK4zrBMb1vNKLiOZK254phq-cgofWhZ8a45NxlZ/pub?gid=0&single=true&output=csv';
+        
+        // Apps Script 웹 앱 URL
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwWuurYz_PEhuK90Pccl_k8vTZk_lvHxmgy8orGwsHTxdz0YyV21SbWUMAhKWClfDK23Q/exec';
         
         // Alpha Vantage API 키
         const ALPHA_VANTAGE_API_KEY = 'YOUR_API_KEY_HERE';
@@ -1561,7 +1566,14 @@
         }
         
         // 날짜 선택
-        function selectDate(dateStr) {
+        async function selectDate(dateStr) {
+            // 저장 안 된 일기가 있으면 먼저 저장 확인
+            if (unsavedDiary && selectedDate) {
+                if (confirm('저장하지 않은 일기가 있습니다. 저장하시겠습니까?')) {
+                    await saveDiary();
+                }
+            }
+            
             selectedDate = dateStr;
             selectedStock = null;
             
@@ -1576,7 +1588,7 @@
             });
             
             renderDateTradeDetails(dateStr);
-            loadDiary();  // 👈 일기 로드 추가
+            await loadDiary();
         }
         
         // 날짜별 거래 상세 렌더링
@@ -1634,29 +1646,42 @@
         async function loadDiary() {
             if (!selectedDate) {
                 document.getElementById('diaryTextarea').value = '';
+                lastDiaryContent = '';
+                unsavedDiary = false;
                 return;
             }
-            
-            console.log('선택된 날짜:', selectedDate);
-            console.log('diaryData 키 목록:', Object.keys(diaryData));
             
             // 날짜 형식 변환: 2026-01-26 → 26.01.26
             let convertedDate = selectedDate;
             if (selectedDate.includes('-')) {
                 const parts = selectedDate.split('-');
-                const year = parts[0].substring(2); // 2026 → 26
-                const month = parts[1]; // 01
-                const day = parts[2]; // 26
+                const year = parts[0].substring(2);
+                const month = parts[1];
+                const day = parts[2];
                 convertedDate = `${year}.${month}.${day}`;
             }
             
-            console.log('변환된 날짜:', convertedDate);
+            // Google Sheets에서 불러온 일기
+            const sheetContent = diaryData[convertedDate] || '';
             
-            // diaryData에서 해당 날짜의 일기 불러오기
-            const content = diaryData[convertedDate] || '';
-            console.log('불러온 일기:', content);
-            
-            document.getElementById('diaryTextarea').value = content;
+            // localStorage에서 불러오기 (Google Sheets보다 우선)
+            try {
+                const result = await window.storage.get(`diary_${selectedDate}`);
+                const content = result?.value || sheetContent;
+                document.getElementById('diaryTextarea').value = content;
+                lastDiaryContent = content;
+                unsavedDiary = false;
+            } catch (error) {
+                document.getElementById('diaryTextarea').value = sheetContent;
+                lastDiaryContent = sheetContent;
+                unsavedDiary = false;
+            }
+        }
+        
+        // 일기 내용 변경 감지
+        function checkDiaryChanged() {
+            const currentContent = document.getElementById('diaryTextarea').value;
+            unsavedDiary = (currentContent !== lastDiaryContent);
         }
         
         // 일기 저장
@@ -1668,7 +1693,40 @@
             
             const content = document.getElementById('diaryTextarea').value;
             
-            alert('일기 저장은 Google Sheets에서 직접 수정해주세요.\n\n날짜: ' + selectedDate + '\n내용: ' + content);
+            // 저장 확인
+            if (!confirm('일기를 저장하시겠습니까?')) {
+                return;
+            }
+            
+            try {
+                // Google Sheets에 저장
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        date: selectedDate,
+                        content: content
+                    })
+                });
+                
+                // 로컬에도 저장
+                await window.storage.set(`diary_${selectedDate}`, content);
+                
+                lastDiaryContent = content;
+                unsavedDiary = false;
+                
+                alert('저장되었습니다!\n\nGoogle Sheets의 diary 시트에 저장되었습니다.');
+                
+                // diary 데이터 새로고침
+                await loadDiaryData();
+                
+            } catch (error) {
+                console.error('저장 실패:', error);
+                alert('저장에 실패했습니다.');
+            }
         }
         
         window.onload = init;
