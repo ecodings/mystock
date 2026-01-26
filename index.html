@@ -18,6 +18,7 @@
             background: #f5f7fa;
             color: #2c3e50;
             font-size: 14px;
+            zoom: 0.67;
         }
         
         .header {
@@ -482,20 +483,24 @@
         
         /* 도넛 차트 영역 */
         .donut-charts-container {
-            display: flex;
-            gap: 10px;
-            flex: 1;  /* 👈 height: 100% 대신 */
-            min-height: 0;  /* 👈 추가 */
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;  /* 👈 flex → grid */
+            gap: 15px;  /* 👈 10px → 15px */
+            flex: 1;
+            min-height: 0;
+            background: #f8f9fa;  /* 👈 추가 */
+            border-radius: 8px;  /* 👈 추가 */
+            padding: 15px;  /* 👈 추가 */
         }
         
         .donut-chart-item {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: #f8f9fa;
+            background: white;  /* 👈 #f8f9fa → white */
             border-radius: 8px;
-            padding: 10px;  /* 👈 15px → 10px */
-            max-height: 280px;  /* 👈 추가: 최대 높이 제한 */
+            padding: 10px;
+            max-height: 280px;
         }
         
         .donut-chart-title {
@@ -1017,6 +1022,17 @@
                     const profitRate = (profit / (avgPrice * stock.quantity) * 100).toFixed(2);
                     const profitClass = profit >= 0 ? 'profit-positive' : 'profit-negative';
                     
+                    // 미국 계좌 여부 확인
+                    const isUS = accountName === '미국';
+                    const currency = isUS ? '$' : '원';
+                    const priceFormat = (price) => {
+                        if (isUS) {
+                            return '$' + price.toFixed(2);
+                        } else {
+                            return Math.floor(price).toLocaleString() + '원';
+                        }
+                    };
+                    
                     html += `
                         <div class="stock-item" onclick="selectStock('${stockName}', '${stock.code}')">
                             <div class="stock-name">
@@ -1032,8 +1048,8 @@
                             
                             <div class="stock-info" style="margin-bottom: 8px;">
                                 <div>${stock.quantity}주</div>
-                                <div>${Math.floor(avgPrice).toLocaleString()}원</div>
-                                <div>${Math.floor(stock.prevClose).toLocaleString()}원</div>
+                                <div>${priceFormat(avgPrice)}</div>
+                                <div>${priceFormat(stock.prevClose)}</div>
                             </div>
                             
                             <div class="stock-info stock-info-label">
@@ -1044,8 +1060,8 @@
                             
                             <div class="stock-info">
                                 <div class="${profitClass}">${profitRate >= 0 ? '+' : ''}${profitRate}%</div>
-                                <div class="${profitClass}">${profit >= 0 ? '+' : ''}${Math.floor(profit).toLocaleString()}원</div>
-                                <div>${Math.floor(currentValue).toLocaleString()}원</div>
+                                <div class="${profitClass}">${profit >= 0 ? '+' : ''}${priceFormat(Math.abs(profit))}</div>
+                                <div>${priceFormat(currentValue)}</div>
                             </div>
                         </div>
                     `;
@@ -1115,13 +1131,7 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'bottom',
-                        labels: {
-                            font: {
-                                size: 11
-                            },
-                            padding: 8
-                        }
+                        display: false  /* 👈 true → false */
                     },
                     tooltip: {
                         callbacks: {
