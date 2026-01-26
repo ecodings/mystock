@@ -1504,11 +1504,11 @@
             
             container.style.display = 'grid';
             container.style.gridTemplateColumns = 'repeat(5, 1fr)';
-            
             let html = '';
             trades.forEach(trade => {
                 const totalAmount = trade.price * trade.quantity;
-                const typeColor = trade.type === '매수' ? '#e74c3c' : '#3498db';
+                const typeClass = trade.type === '매수' ? 'buy' : 'sell';
+                const itemClass = trade.type === '매수' ? 'buy-item' : 'sell-item';
                 
                 // 미국 계좌 여부 확인
                 const tradeIsUS = trade.account === '미국';
@@ -1520,8 +1520,6 @@
                     }
                 };
                 
-                const itemClass = trade.type === '매수' ? 'buy-item' : 'sell-item';
-
                 html += `
                     <div class="date-trade-detail ${itemClass}">
                         <div>
