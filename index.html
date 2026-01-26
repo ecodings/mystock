@@ -1538,7 +1538,13 @@
                 
                 const day = tradeDate.getDate();
                 if (!dailyTrades[day]) {
-                    dailyTrades[day] = { buy: 0, sell: 0, buyQty: 0, sellQty: 0 };
+                    dailyTrades[day] = { 
+                        buy: 0, 
+                        sell: 0, 
+                        buyQty: 0, 
+                        sellQty: 0,
+                        account: trade.account
+                    };
                 }
                 
                 const amount = trade.price * trade.quantity;
@@ -1555,23 +1561,9 @@
             
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const trades = dailyTrades[day] || { buy: 0, sell: 0, buyQty: 0, sellQty: 0 };
+                const trades = dailyTrades[day] || { buy: 0, sell: 0, buyQty: 0, sellQty: 0, account: null };
                 
-                // 미국 종목인지 확인
-                let isUS = false;
-                if (selectedStock) {
-                const stockTrades = tradeData.filter(t => t.stockName === selectedStock);
-                if (stockTrades.length > 0 && stockTrades[0].account === '미국') {
-                    document.getElementById('totalBuy').textContent = '$' + totalBuy.toFixed(2);
-                    document.getElementById('totalSell').textContent = '$' + totalSell.toFixed(2);
-                } else {
-                    document.getElementById('totalBuy').textContent = Math.floor(totalBuy/10000) + '만원';
-                    document.getElementById('totalSell').textContent = Math.floor(totalSell/10000) + '만원';
-                }
-            } else {
-                document.getElementById('totalBuy').textContent = Math.floor(totalBuy/10000) + '만원';
-                document.getElementById('totalSell').textContent = Math.floor(totalSell/10000) + '만원';
-            }
+                const isUS = trades.account === '미국';
                 
                 let dayHtml = `
                     <div class="calendar-day${selectedDate === dateStr ? ' active' : ''}" onclick="selectDate('${dateStr}')">
@@ -1580,14 +1572,14 @@
                 
                 if (trades.buy > 0) {
                     if (isUS) {
-                        dayHtml += `<div class="day-buy">매수 ${trades.buyQty}주/$${(trades.buy).toFixed(2)}</div>`;
+                        dayHtml += `<div class="day-buy">매수 ${trades.buyQty}주/$${trades.buy.toFixed(2)}</div>`;
                     } else {
                         dayHtml += `<div class="day-buy">매수 ${trades.buyQty}주/${(trades.buy/10000).toFixed(1)}만</div>`;
                     }
                 }
                 if (trades.sell > 0) {
                     if (isUS) {
-                        dayHtml += `<div class="day-sell">매도 ${trades.sellQty}주/$${(trades.sell).toFixed(2)}</div>`;
+                        dayHtml += `<div class="day-sell">매도 ${trades.sellQty}주/$${trades.sell.toFixed(2)}</div>`;
                     } else {
                         dayHtml += `<div class="day-sell">매도 ${trades.sellQty}주/${(trades.sell/10000).toFixed(1)}만</div>`;
                     }
@@ -1596,10 +1588,15 @@
                 dayHtml += `</div>`;
                 grid.innerHTML += dayHtml;
             }
-
             
-            document.getElementById('totalBuy').textContent = Math.floor(totalBuy/10000) + '만원';
-            document.getElementById('totalSell').textContent = Math.floor(totalSell/10000) + '만원';
+            const isUSStock = selectedStock && tradeData.find(t => t.stockName === selectedStock)?.account === '미국';
+            if (isUSStock) {
+                document.getElementById('totalBuy').textContent = '$' + totalBuy.toFixed(2);
+                document.getElementById('totalSell').textContent = '$' + totalSell.toFixed(2);
+            } else {
+                document.getElementById('totalBuy').textContent = Math.floor(totalBuy/10000) + '만원';
+                document.getElementById('totalSell').textContent = Math.floor(totalSell/10000) + '만원';
+            }
         }
         
         // 날짜 선택
