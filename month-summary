@@ -25,7 +25,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
             background: #f5f7fa;
             color: #2c3e50;
-            font-size: 14px;
+            font-size: 17px;
             zoom: 0.67;
             display: flex;
             flex-direction: column;
@@ -43,7 +43,7 @@
         }
         
         .header h1 {
-            font-size: 24px;
+            font-size: 27px;
             color: #2c3e50;
         }
         
@@ -54,7 +54,7 @@
             padding: 10px 20px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 17px;
             transition: background 0.3s;
         }
         
@@ -69,7 +69,7 @@
             padding: 10px 20px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 17px;
             transition: background 0.3s;
         }
         
@@ -139,7 +139,7 @@
         }
         
         .account-title {
-            font-size: 20px;
+            font-size: 23px;
             font-weight: bold;
             margin-bottom: 15px;
             color: #495057;
@@ -166,7 +166,7 @@
         }
         
         .stock-name {
-            font-size: 18px;
+            font-size: 21px;
             font-weight: bold;
             margin-bottom: 8px;
             color: #2c3e50;
@@ -176,13 +176,13 @@
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 6px;
-            font-size: 15px;
+            font-size: 18px;
             color: #6c757d;
             margin-bottom: 6px;
         }
         
         .stock-info-label {
-            font-size: 12px;
+            font-size: 15px;
             color: #95a5a6;
             margin-top: 4px;
         }
@@ -210,7 +210,7 @@
         }
         
         .trade-history-profit {
-            font-size: 18px;
+            font-size: 21px;
             font-weight: bold;
             margin-bottom: 12px;
             padding: 10px;
@@ -229,13 +229,13 @@
             background: #f8f9fa;
             border-radius: 6px;
             padding: 10px;
-            font-size: 13px;
+            font-size: 16px;
             line-height: 1.5;
         }
         
         .trade-date {
             color: #6c757d;
-            font-size: 13px;
+            font-size: 16px;
             font-weight: 600;
             margin-bottom: 4px;
         }
@@ -276,7 +276,7 @@
         }
         
         .trade-stock-name {
-            font-size: 16px;
+            font-size: 19px;
             font-weight: bold;
             color: #2c3e50;
         }
@@ -497,7 +497,7 @@
             padding: 12px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 15px;
+            font-size: 18px;
             font-weight: 600;
             transition: all 0.2s;
         }
@@ -540,7 +540,7 @@
         }
         
         .donut-chart-title {
-            font-size: 14px;  /* 👈 16px → 14px */
+            font-size: 17px;  /* 👈 16px → 14px */
             font-weight: bold;
             color: #2c3e50;
             margin-bottom: 5px;  /* 👈 10px → 5px */
@@ -565,7 +565,7 @@
             border: 1px solid #dee2e6;
             border-radius: 6px;
             padding: 12px;
-            font-size: 14px;
+            font-size: 17px;
             resize: none;
             font-family: inherit;
             line-height: 1.6;
@@ -579,7 +579,7 @@
             padding: 10px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 17px;
             font-weight: 600;
         }
         
