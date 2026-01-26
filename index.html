@@ -114,12 +114,15 @@
         }
 
         .left-panel > .panel:first-child {
-            max-height: 60%;  /* 👈 추가 */
+            flex: 8;  /* 👈 80% */
+            min-height: 0;
+            overflow-y: auto;
         }
         
         .left-panel > .panel:last-child {
-            flex: 1;  /* 👈 추가 */
-            min-height: 0;  /* 👈 추가 */
+            flex: 2;  /* 👈 20% */
+            min-height: 0;
+            overflow-y: auto;
         }
         
         .accounts-container {
@@ -297,8 +300,10 @@
         }
         
         .calendar-section {
-            flex: 0 0 auto;
-            max-height: 55vh;  /* 👈 추가 */
+            flex: 1;  /* 👈 나머지 공간 전부 */
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
         }
         
         .calendar-header {
@@ -363,16 +368,20 @@
         }
         
         .calendar {
+            flex: 1;  /* 👈 추가 */
             background: white;
             border-radius: 8px;
             margin-bottom: 15px;
-            overflow-x: hidden;
+            overflow: auto;  /* 👈 hidden → auto */
+            display: flex;
+            flex-direction: column;
         }
         
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 4px;
+            flex: 1;  /* 👈 추가 */
         }
         
         .calendar-day-header {
@@ -465,11 +474,11 @@
         
         /* 탭 영역 */
         .tab-section {
-            flex: 1;
+            flex: 0 0 400px;  /* 👈 고정 높이 */
             display: flex;
             flex-direction: column;
-            min-height: 0;  /* 👈 추가 */
-            overflow: hidden;  /* 👈 추가 */
+            min-height: 0;
+            overflow: hidden;
         }
 
         
@@ -1148,6 +1157,8 @@
                 '반도체': '#FFCE56',
                 '방산': '#4BC0C0',
                 '조선': '#9966FF',
+                '방어': '#95A5A6',  /* 👈 회색 */
+                '전력': '#E67E22',  /* 👈 주황색으로 변경 */
                 '기타': '#FF9F40'
             };
             
@@ -1174,7 +1185,7 @@
                         color: '#fff',
                         font: {
                             weight: 'bold',
-                            size: 12
+                            size: 14
                         },
                         formatter: (value, ctx) => {
                             return ctx.chart.data.labels[ctx.dataIndex];
