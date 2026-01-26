@@ -1191,95 +1191,141 @@
         
         // 도넛 차트 렌더링
         function renderDonutCharts() {
-            const categoryData = {};
+            // 계좌별 종목 그룹화
+            const accountStocks = {
+                '국내': {},
+                '연금': {},
+                '미국': {}
+            };
             
-            // 계좌별로 구분하여 데이터 집계
             tradeData.forEach(trade => {
-                if (!categoryData[trade.account]) {
-                    categoryData[trade.account] = {};
-                }
+                const account = trade.account;
+                const stockName = trade.stockName;
                 
-                const category = trade.category || '기타';
+                if (!accountStocks[account]) return;
                 
-                if (!categoryData[trade.account][category]) {
-                    categoryData[trade.account][category] = {
-                        stocks: {}
-                    };
-                }
-                
-                if (!categoryData[trade.account][category].stocks[trade.stockName]) {
-                    categoryData[trade.account][category].stocks[trade.stockName] = {
+                if (!accountStocks[account][stockName]) {
+                    accountStocks[account][stockName] = {
                         quantity: 0,
-                        totalBuy: 0,
-                        buyCount: 0,
-                        code: trade.code,
+                        avgPrice: 0,
+                        totalCost: 0,
+                        category: trade.category,
                         prevClose: trade.prevClose
                     };
                 }
                 
-                const stock = categoryData[trade.account][category].stocks[trade.stockName];
+                const stock = accountStocks[account][stockName];
                 
                 if (trade.type === '매수') {
-                    stock.quantity += trade.quantity;
-                    stock.totalBuy += trade.price * trade.quantity;
-                    stock.buyCount += trade.quantity;
-                } else if (trade.type === '매도') {
-                    const currentAvgPrice = stock.totalBuy / stock.buyCount;
+                    const newTotalCost = stock.totalCost + (trade.price * trade.quantity);
+                    const newQuantity = stock.quantity + trade.quantity;
+                    stock.avgPrice = newTotalCost / newQuantity;
+                    stock.totalCost = newTotalCost;
+                    stock.quantity = newQuantity;
+                } else {
                     stock.quantity -= trade.quantity;
-                    stock.totalBuy -= currentAvgPrice * trade.quantity;
-                    stock.buyCount -= trade.quantity;
+                    if (stock.quantity < 0) stock.quantity = 0;
                 }
+                
+                stock.prevClose = trade.prevClose;
             });
             
-            // 색상 매핑
-            const colorMap = {
-                '지수': '#FF6384',
-                'AI': '#36A2EB',
-                '반도체': '#FFCE56',
-                '방산': '#4BC0C0',
-                '조선': '#9966FF',
-                '방어': '#95A5A6',  /* 👈 회색 */
-                '전력': '#E67E22',  /* 👈 주황색으로 변경 */
-                '금': '#FFD700',      /* 👈 금색 */
-                '은': '#C0C0C0',      /* 👈 은색 */
-                '우라늄': '#1E90FF',
-                '기타': '#FF9F40'
-            };
-            
-            // 공통 차트 옵션
+            // 공통 옵션
             const commonOptions = {
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: true,
                 plugins: {
                     legend: {
-                        display: false  /* 👈 true → false */
+                        position: 'right',
+                        labels: {
+                            font: {
+                                size: 16,
+                                family: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif'
+                            },
+                            padding: 15,
+                            boxWidth: 15,
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                return data.labels.map((label, i) => {
+                                    const value = data.datasets[0].data[i];
+                                    const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return {
+                                        text: `${label}: ${percentage}%`,
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        hidden: false,
+                                        index: i
+                                    };
+                                });
+                            }
+                        }
                     },
                     tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleFont: {
+                            size: 18,
+                            family: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif'
+                        },
+                        bodyFont: {
+                            size: 16,
+                            family: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif'
+                        },
+                        padding: 12,
+                        displayColors: true,
                         callbacks: {
                             label: function(context) {
                                 const label = context.label || '';
-                                const value = context.parsed || 0;
+                                const value = context.parsed;
                                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                 const percentage = ((value / total) * 100).toFixed(1);
-                                return `${label}: ${Math.floor(value).toLocaleString()}원 (${percentage}%)`;
+                                
+                                // 미국 차트인지 확인
+                                const isUS = context.chart.canvas.id === 'usDonutChart';
+                                
+                                if (isUS) {
+                                    return `${label}: $${value.toFixed(2)} (${percentage}%)`;
+                                } else {
+                                    return `${label}: ${Math.floor(value).toLocaleString()}원 (${percentage}%)`;
+                                }
                             }
                         }
                     },
                     datalabels: {
                         color: '#fff',
                         font: {
+                            size: 16,
                             weight: 'bold',
-                            size: 14
+                            family: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif'
                         },
-                        formatter: (value, ctx) => {
-                            return ctx.chart.data.labels[ctx.dataIndex];
+                        formatter: (value, context) => {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return percentage > 5 ? percentage + '%' : '';
                         }
                     }
                 }
             };
             
-            // 종목 차트
-            const stockCategories = categoryData['종목'] || {};
+            const colorMap = {
+                '주식': '#3498db',
+                'ETF': '#e74c3c',
+                '채권': '#2ecc71',
+                '현금': '#f39c12',
+                '기타': '#95a5a6'
+            };
+            
+            // 국내 주식 차트
+            const stockCategories = {};
+            Object.keys(accountStocks['국내'] || {}).forEach(stockName => {
+                const stock = accountStocks['국내'][stockName];
+                const category = stock.category;
+                
+                if (!stockCategories[category]) {
+                    stockCategories[category] = { stocks: {} };
+                }
+                stockCategories[category].stocks[stockName] = stock;
+            });
+            
             const stockLabels = [];
             const stockValues = [];
             const stockColors = [];
@@ -1318,7 +1364,17 @@
             });
             
             // ETF 차트
-            const etfCategories = categoryData['ETF'] || {};
+            const etfCategories = {};
+            Object.keys(accountStocks['연금'] || {}).forEach(stockName => {
+                const stock = accountStocks['연금'][stockName];
+                const category = stock.category;
+                
+                if (!etfCategories[category]) {
+                    etfCategories[category] = { stocks: {} };
+                }
+                etfCategories[category].stocks[stockName] = stock;
+            });
+            
             const etfLabels = [];
             const etfValues = [];
             const etfColors = [];
@@ -1354,7 +1410,17 @@
             });
             
             // 미국 차트
-            const usCategories = categoryData['미국'] || {};
+            const usCategories = {};
+            Object.keys(accountStocks['미국'] || {}).forEach(stockName => {
+                const stock = accountStocks['미국'][stockName];
+                const category = stock.category;
+                
+                if (!usCategories[category]) {
+                    usCategories[category] = { stocks: {} };
+                }
+                usCategories[category].stocks[stockName] = stock;
+            });
+            
             const usLabels = [];
             const usValues = [];
             const usColors = [];
