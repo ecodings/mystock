@@ -68,35 +68,56 @@ def get_korea_price_from_naver(code):
     """네이버 금융에서 한국 주식 현재가 크롤링 (1차 시도)"""
     url = f"https://finance.naver.com/item/main.naver?code={code}"
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     }
     
     try:
+        print(f"   🌐 네이버 접속 시도: {code}")
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
+        
+        print(f"   ✓ HTTP 응답: {response.status_code}")
+        
         soup = BeautifulSoup(response.text, 'html.parser')
         
         # 현재가 찾기 (여러 셀렉터 시도)
         selectors = [
             'div.rate_info div.today span.blind',
             'p.no_today span.blind',
-            '#chart_area > div.rate_info > div > p.no_today > em > span.blind'
+            '#chart_area > div.rate_info > div > p.no_today > em > span.blind',
+            'div.today span.no_today span.blind'
         ]
         
-        for selector in selectors:
-            element = soup.select_one(selector)
-            if element:
-                price_text = element.text.replace(',', '').strip()
-                price = float(price_text)
-                return {
-                    'price': round(price, 0),
-                    'source': 'naver',
-                    'timestamp': datetime.now().isoformat()
-                }
+        for i, selector in enumerate(selectors):
+            elements = soup.select(selector)
+            print(f"   셀렉터 {i+1} ({selector}): {len(elements)}개 발견")
+            
+            if elements:
+                for element in elements:
+                    price_text = element.text.replace(',', '').strip()
+                    print(f"   텍스트: '{price_text}'")
+                    
+                    # 숫자인지 확인
+                    if price_text.replace('.', '').isdigit():
+                        price = float(price_text)
+                        print(f"   ✅ 가격 파싱 성공: {price}")
+                        return {
+                            'price': round(price, 0),
+                            'source': 'naver',
+                            'timestamp': datetime.now().isoformat()
+                        }
+        
+        print(f"   ❌ 가격을 찾을 수 없음")
+        
+        # HTML 일부 저장 (디버깅용)
+        with open(f'debug_{code}.html', 'w', encoding='utf-8') as f:
+            f.write(response.text[:5000])  # 처음 5000자만
+        print(f"   💾 HTML 샘플 저장: debug_{code}.html")
         
         return None
         
     except Exception as e:
+        print(f"   ❌ 오류: {e}")
         return None
 
 def get_korea_prev_close(code):
