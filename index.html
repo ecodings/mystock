@@ -1847,6 +1847,56 @@
             const currentContent = document.getElementById('diaryTextarea').value;
             unsavedDiary = (currentContent !== lastDiaryContent);
         }
+
+        const VERCEL_API_URL = 'https://your-project.vercel.app/api/trigger-update';
+
+        async function triggerGitHubActions() {
+            const btn = document.getElementById('realtimeBtn');
+            
+            btn.disabled = true;
+            btn.textContent = '🔄 주가 업데이트 중...';
+            
+            try {
+                const response = await fetch(VERCEL_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    console.log('✅ 업데이트 시작:', data.message);
+                    btn.textContent = '⏳ 처리 중... (1-2분 소요)';
+                    
+                    // 2분 후 자동으로 데이터 새로고침
+                    setTimeout(async () => {
+                        console.log('🔄 최신 데이터 로드 중...');
+                        await loadPrevClosePrices();
+                        renderAccounts();
+                        updateCalendar();
+                        renderDonutCharts();
+                        
+                        alert('✅ 주가 업데이트 완료!');
+                        btn.textContent = '🔄 실시간 조회';
+                        btn.disabled = false;
+                    }, 120000); // 2분
+                    
+                } else {
+                    throw new Error(data.error || '업데이트 실패');
+                }
+                
+            } catch (error) {
+                console.error('오류:', error);
+                alert('주가 업데이트 요청에 실패했습니다: ' + error.message);
+                btn.textContent = '🔄 실시간 조회';
+                btn.disabled = false;
+            }
+        }
+
+
+
         
         // 일기 저장
         async function saveDiary() {
