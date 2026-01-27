@@ -939,15 +939,17 @@
                 
                 // 헤더에 업데이트 시간 표시 (한국 시간)
                 if (data.updated_at) {
-                    const date = new Date(data.updated_at);
+                    // ISO 문자열을 UTC로 파싱
+                    const utcDate = new Date(data.updated_at);
                     
-                    // 한국 시간으로 변환 (UTC+9)
-                    const kstDate = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+                    // UTC 시간을 밀리초로 변환 후 한국 시간(+9시간) 추가
+                    const kstOffset = 9 * 60 * 60 * 1000; // 9시간을 밀리초로
+                    const kstDate = new Date(utcDate.getTime() + kstOffset);
                     
-                    const month = kstDate.getMonth() + 1;
-                    const day = kstDate.getDate();
-                    const hours = String(kstDate.getHours()).padStart(2, '0');
-                    const minutes = String(kstDate.getMinutes()).padStart(2, '0');
+                    const month = kstDate.getUTCMonth() + 1;
+                    const day = kstDate.getUTCDate();
+                    const hours = String(kstDate.getUTCHours()).padStart(2, '0');
+                    const minutes = String(kstDate.getUTCMinutes()).padStart(2, '0');
                     
                     document.getElementById('priceUpdateTime').textContent = 
                         `(전일 종가: ${month}월 ${day}일 ${hours}:${minutes} 기준)`;
