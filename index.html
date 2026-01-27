@@ -928,7 +928,9 @@
         // 전일 종가 로드
         async function loadPrevClosePrices() {
             try {
-                const response = await fetch('stock_prices.json');
+                // 캐시 방지를 위한 타임스탬프 추가
+                const timestamp = new Date().getTime();
+                const response = await fetch(`stock_prices.json?t=${timestamp}`);
                 if (!response.ok) throw new Error('파일 없음');
                 
                 const data = await response.json();
