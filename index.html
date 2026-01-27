@@ -1853,14 +1853,14 @@
                 return;
             }
             
-            // 날짜 형식 변환: 2026-01-26 → 26.01.26
+            // 날짜 형식 변환: 2026-01-27 → 26.01.27
             let convertedDate = selectedDate;
             if (selectedDate.includes('-')) {
                 const parts = selectedDate.split('-');
-                const year = parts[0].substring(2);
-                const month = parts[1];
-                const day = parts[2];
-                convertedDate = `${day}.${month}.${year}`;
+                const year = parts[0].substring(2);  // 2026 → 26
+                const month = parts[1];              // 01
+                const day = parts[2];                // 27
+                convertedDate = `${year}.${month}.${day}`;  // 26.01.27
             }
             
             // Google Sheets에서 불러온 일기
@@ -1908,14 +1908,14 @@
             try {
                 console.log('저장 시작:', {date: selectedDate, content: content});
                 
-                // 날짜 형식 변환: 2026-01-26 → 26.01.26
+                // 날짜 형식 변환: 2026-01-27 → 26.01.27
                 let convertedDate = selectedDate;
                 if (selectedDate.includes('-')) {
                     const parts = selectedDate.split('-');
-                    const year = parts[0].substring(2);
-                    const month = parts[1];
-                    const day = parts[2];
-                    convertedDate = `${day}.${month}.${year}`;
+                    const year = parts[0].substring(2);  // 2026 → 26
+                    const month = parts[1];              // 01
+                    const day = parts[2];                // 27
+                    convertedDate = `${year}.${month}.${day}`;  // 26.01.27
                 }
                 
                 console.log('변환된 날짜:', convertedDate);
