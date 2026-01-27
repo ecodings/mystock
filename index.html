@@ -721,11 +721,15 @@
         let stockChart = null;
         let etfChart = null;
         let usChart = null;
-        let unsavedDiary = false;  // 저장 안 된 일기 여부
-        let lastDiaryContent = '';  // 마지막 로드된 일기 내용
+        let unsavedDiary = false;
+        let lastDiaryContent = '';
         
         const SHEET_ID = '1AMJsDNUm0y_tFNC3zW3zbWPqFTovEyAl-cnhPnSokSo';
         const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQnvayNXW-vM8MpG490_EmlbwJWb7d5sWshz6W_YK4zrBMb1vNKLiOZK254phq-cgofWhZ8a45NxlZ/pub?gid=0&single=true&output=csv';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwWuurYz_PEhuK90Pccl_k8vTZk_lvHxmgy8orGwsHTxdz0YyV21SbWUMAhKWClfDK23Q/exec';
+        
+        // Vercel API URL 추가
+        const VERCEL_API_URL = 'https://mystock-lyart.vercel.app/api/trigger-update';
         
         // Apps Script 웹 앱 URL
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwWuurYz_PEhuK90Pccl_k8vTZk_lvHxmgy8orGwsHTxdz0YyV21SbWUMAhKWClfDK23Q/exec';
@@ -1054,35 +1058,55 @@
         }
         
         // 실시간 조회 모드
+        // 실시간 조회 - GitHub Actions 트리거
         async function loadRealtimeMode() {
             const btn = document.getElementById('realtimeBtn');
             const prevCloseBtn = document.getElementById('prevCloseBtn');
             
             btn.disabled = true;
-            btn.textContent = '🔄 실시간 조회 중...';
+            btn.textContent = '🔄 주가 업데이트 중...';
             prevCloseBtn.classList.remove('active');
             
             try {
-                console.log('🔄 실시간 조회 시작...');
-                const successCount = await fetchRealtimePrices();
+                console.log('🔄 GitHub Actions 트리거 시작...');
                 
-                if (successCount > 0) {
-                    console.log(`✅ ${successCount}개 종목 실시간 가격 적용!`);
+                const response = await fetch(VERCEL_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    console.log('✅ 업데이트 시작:', data.message);
+                    btn.textContent = '⏳ 처리 중... (1-2분 소요)';
                     btn.classList.add('active');
+                    
+                    // 2분 후 자동으로 데이터 새로고침
+                    setTimeout(async () => {
+                        console.log('🔄 최신 데이터 로드 중...');
+                        
+                        await loadPrevClosePrices();
+                        renderAccounts();
+                        updateCalendar();
+                        renderDonutCharts();
+                        
+                        alert('✅ 주가 업데이트 완료!');
+                        btn.textContent = '🔄 실시간 조회';
+                        btn.disabled = false;
+                    }, 120000); // 2분
+                    
                 } else {
-                    alert('실시간 조회에 실패했습니다. 전일 종가를 사용합니다.');
+                    throw new Error(data.error || '업데이트 실패');
                 }
                 
-                renderAccounts();
-                updateCalendar();
-                renderDonutCharts();
-                
             } catch (error) {
-                console.error('실시간 조회 오류:', error);
-                alert('실시간 조회 중 오류가 발생했습니다.');
-            } finally {
-                btn.disabled = false;
+                console.error('오류:', error);
+                alert('주가 업데이트 요청에 실패했습니다: ' + error.message);
                 btn.textContent = '🔄 실시간 조회';
+                btn.disabled = false;
             }
         }
         
