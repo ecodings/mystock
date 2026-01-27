@@ -939,17 +939,26 @@
                 
                 // 헤더에 업데이트 시간 표시 (한국 시간)
                 if (data.updated_at) {
-                    // ISO 문자열을 UTC로 파싱
-                    const utcDate = new Date(data.updated_at);
+                    // ISO 문자열 직접 파싱 (예: "2026-01-27T11:13:59.475851")
+                    const isoString = data.updated_at;
                     
-                    // UTC 시간을 밀리초로 변환 후 한국 시간(+9시간) 추가
-                    const kstOffset = 9 * 60 * 60 * 1000; // 9시간을 밀리초로
+                    // UTC 기준으로 Date 객체 생성 (Z 붙여서 강제 UTC)
+                    const utcDate = new Date(isoString.endsWith('Z') ? isoString : isoString + 'Z');
+                    
+                    // 한국 시간 = UTC + 9시간
+                    const kstOffset = 9 * 60 * 60 * 1000;
                     const kstDate = new Date(utcDate.getTime() + kstOffset);
                     
                     const month = kstDate.getUTCMonth() + 1;
                     const day = kstDate.getUTCDate();
                     const hours = String(kstDate.getUTCHours()).padStart(2, '0');
                     const minutes = String(kstDate.getUTCMinutes()).padStart(2, '0');
+                    
+                    console.log('시간 변환:', {
+                        original: isoString,
+                        utc: utcDate.toISOString(),
+                        kst: `${month}월 ${day}일 ${hours}:${minutes}`
+                    });
                     
                     document.getElementById('priceUpdateTime').textContent = 
                         `(전일 종가: ${month}월 ${day}일 ${hours}:${minutes} 기준)`;
