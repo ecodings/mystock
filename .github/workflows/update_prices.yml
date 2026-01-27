@@ -1,10 +1,10 @@
 name: Update Stock Prices
-
 on:
   schedule:
-    # 매일 한국시간 오후 4시 (UTC 7시)
-    - cron: '0 7 * * 1-5'  # 월-금요일만
-  workflow_dispatch:  # 수동 실행도 가능
+    - cron: '0 0 * * 1-5'    # 월-금 오전 9시 (장 시작)
+    - cron: '30 6 * * 1-5'   # 월-금 오후 3:30 (장 마감)
+    - cron: '0 0 * * 6'      # 토요일 오전 9시
+  workflow_dispatch:  # 수동 실행 가능
 
 jobs:
   update-prices:
@@ -21,7 +21,7 @@ jobs:
     
     - name: Install dependencies
       run: |
-        pip install yfinance pandas
+        pip install yfinance pandas beautifulsoup4 requests
     
     - name: Pull latest changes and update
       run: |
