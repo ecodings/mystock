@@ -1,0 +1,40 @@
+{
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Credentials", "value": "true" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,POST" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
+      ]
+    }
+  ]
+}
+```
+
+---
+
+### 4단계: Vercel 배포
+
+#### A. Vercel 계정 생성
+1. https://vercel.com 접속
+2. **Sign Up** → GitHub 계정으로 로그인
+
+#### B. 프로젝트 연결
+1. Vercel 대시보드에서 **Add New** → **Project**
+2. GitHub 저장소 선택 (Import)
+3. **Configure Project** 화면에서:
+   - Framework Preset: **Other**
+   - Build Command: 비워두기
+   - Output Directory: `.` (현재 디렉토리)
+
+#### C. 환경 변수 설정
+1. **Environment Variables** 섹션에서 추가:
+```
+   GITHUB_TOKEN = ghp_your_token_here
+   GITHUB_OWNER = your-username
+   GITHUB_REPO = your-repo-name
