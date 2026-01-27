@@ -26,7 +26,7 @@
             background: #f5f7fa;
             color: #2c3e50;
             font-size: 17px;
-            zoom: 0.60;
+            zoom: 0.67;
             display: flex;
             flex-direction: column;
         }
@@ -565,7 +565,7 @@
             border: 1px solid #dee2e6;
             border-radius: 6px;
             padding: 12px;
-            font-size: 21px;
+            font-size: 17px;
             resize: none;
             font-family: inherit;
             line-height: 1.6;
@@ -721,21 +721,17 @@
         let stockChart = null;
         let etfChart = null;
         let usChart = null;
-        let unsavedDiary = false;
-        let lastDiaryContent = '';
+        let unsavedDiary = false;  // 저장 안 된 일기 여부
+        let lastDiaryContent = '';  // 마지막 로드된 일기 내용
         
         const SHEET_ID = '1AMJsDNUm0y_tFNC3zW3zbWPqFTovEyAl-cnhPnSokSo';
         const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQnvayNXW-vM8MpG490_EmlbwJWb7d5sWshz6W_YK4zrBMb1vNKLiOZK254phq-cgofWhZ8a45NxlZ/pub?gid=0&single=true&output=csv';
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwWuurYz_PEhuK90Pccl_k8vTZk_lvHxmgy8orGwsHTxdz0YyV21SbWUMAhKWClfDK23Q/exec';
-        
-        // Vercel API URL 추가
-        const VERCEL_API_URL = 'https://mystock-lyart.vercel.app/api/trigger-update';
         
         // Apps Script 웹 앱 URL
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwWuurYz_PEhuK90Pccl_k8vTZk_lvHxmgy8orGwsHTxdz0YyV21SbWUMAhKWClfDK23Q/exec';
+        const DIARY_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwWuurYz_PEhuK90Pccl_k8vTZk_lvHxmgy8orGwsHTxdz0YyV21SbWUMAhKWClfDK23Q/exec';
         
-        // Alpha Vantage API 키
-        const ALPHA_VANTAGE_API_KEY = 'YOUR_API_KEY_HERE';
+        // Vercel API URL
+        const VERCEL_API_URL = 'https://mystock-lyart.vercel.app/api/trigger-update';
         
         // 초기화
         async function init() {
@@ -829,60 +825,36 @@
             try {
                 const response = await fetch(url);
                 const text = await response.text();
+                const lines = text.trim().split('\n');
+                
+                console.log('diary 시트 첫 줄:', lines[0]);
                 
                 diaryData = {};
-                
-                // CSV를 줄바꿈 포함해서 파싱
-                let inQuotes = false;
-                let currentRow = [];
-                let currentCell = '';
-                
-                for (let i = 0; i < text.length; i++) {
-                    const char = text[i];
-                    const nextChar = text[i + 1];
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
                     
-                    if (char === '"') {
-                        if (inQuotes && nextChar === '"') {
-                            // 두 개의 따옴표는 하나의 따옴표로
-                            currentCell += '"';
-                            i++; // 다음 따옴표 건너뛰기
-                        } else {
-                            // 따옴표 시작/끝
+                    // CSV 파싱
+                    const values = [];
+                    let current = '';
+                    let inQuotes = false;
+                    
+                    for (let char of line) {
+                        if (char === '"') {
                             inQuotes = !inQuotes;
+                        } else if (char === ',' && !inQuotes) {
+                            values.push(current.replace(/^"|"$/g, '').trim());
+                            current = '';
+                        } else {
+                            current += char;
                         }
-                    } else if (char === ',' && !inQuotes) {
-                        // 셀 구분
-                        currentRow.push(currentCell);
-                        currentCell = '';
-                    } else if (char === '\n' && !inQuotes) {
-                        // 행 구분
-                        currentRow.push(currentCell);
-                        
-                        // 첫 행(헤더)이 아니고, 최소 2개 컬럼이 있으면
-                        if (currentRow.length >= 2 && currentRow[0] !== '날짜') {
-                            const dateStr = currentRow[0].trim();
-                            const content = currentRow[1]; // trim 하지 않음 (공백 유지)
-                            if (dateStr && content) {
-                                diaryData[dateStr] = content;
-                            }
-                        }
-                        
-                        currentRow = [];
-                        currentCell = '';
-                    } else {
-                        currentCell += char;
                     }
-                }
-                
-                // 마지막 행 처리
-                if (currentCell || currentRow.length > 0) {
-                    currentRow.push(currentCell);
-                    if (currentRow.length >= 2 && currentRow[0] !== '날짜') {
-                        const dateStr = currentRow[0].trim();
-                        const content = currentRow[1];
-                        if (dateStr && content) {
-                            diaryData[dateStr] = content;
-                        }
+                    values.push(current.replace(/^"|"$/g, '').trim());
+                    
+                    if (values[0] && values[1]) {
+                        const dateStr = values[0];
+                        const content = values[1];
+                        diaryData[dateStr] = content;
                     }
                 }
                 
@@ -1057,8 +1029,7 @@
             renderDonutCharts();
         }
         
-        // 실시간 조회 모드
-        // 실시간 조회 - GitHub Actions 트리거
+        // 실시간 조회 모드 - GitHub Actions 트리거
         async function loadRealtimeMode() {
             const btn = document.getElementById('realtimeBtn');
             const prevCloseBtn = document.getElementById('prevCloseBtn');
@@ -1078,6 +1049,7 @@
                 });
                 
                 const data = await response.json();
+                console.log('응답 데이터:', data);
                 
                 if (data.success) {
                     console.log('✅ 업데이트 시작:', data.message);
@@ -1871,56 +1843,6 @@
             const currentContent = document.getElementById('diaryTextarea').value;
             unsavedDiary = (currentContent !== lastDiaryContent);
         }
-
-        const VERCEL_API_URL = 'https://your-project.vercel.app/api/trigger-update';
-
-        async function triggerGitHubActions() {
-            const btn = document.getElementById('realtimeBtn');
-            
-            btn.disabled = true;
-            btn.textContent = '🔄 주가 업데이트 중...';
-            
-            try {
-                const response = await fetch(VERCEL_API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    console.log('✅ 업데이트 시작:', data.message);
-                    btn.textContent = '⏳ 처리 중... (1-2분 소요)';
-                    
-                    // 2분 후 자동으로 데이터 새로고침
-                    setTimeout(async () => {
-                        console.log('🔄 최신 데이터 로드 중...');
-                        await loadPrevClosePrices();
-                        renderAccounts();
-                        updateCalendar();
-                        renderDonutCharts();
-                        
-                        alert('✅ 주가 업데이트 완료!');
-                        btn.textContent = '🔄 실시간 조회';
-                        btn.disabled = false;
-                    }, 120000); // 2분
-                    
-                } else {
-                    throw new Error(data.error || '업데이트 실패');
-                }
-                
-            } catch (error) {
-                console.error('오류:', error);
-                alert('주가 업데이트 요청에 실패했습니다: ' + error.message);
-                btn.textContent = '🔄 실시간 조회';
-                btn.disabled = false;
-            }
-        }
-
-
-
         
         // 일기 저장
         async function saveDiary() {
@@ -1938,7 +1860,7 @@
             
             try {
                 // Google Sheets에 저장
-                const response = await fetch(APPS_SCRIPT_URL, {
+                const response = await fetch(DIARY_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: {
