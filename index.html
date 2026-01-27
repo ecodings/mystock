@@ -937,13 +937,18 @@
                 
                 console.log('📊 가격 데이터 로드:', data.updated_at);
                 
-                // 헤더에 업데이트 시간 표시
+                // 헤더에 업데이트 시간 표시 (한국 시간)
                 if (data.updated_at) {
                     const date = new Date(data.updated_at);
-                    const month = date.getMonth() + 1;
-                    const day = date.getDate();
-                    const hours = String(date.getHours()).padStart(2, '0');
-                    const minutes = String(date.getMinutes()).padStart(2, '0');
+                    
+                    // 한국 시간으로 변환 (UTC+9)
+                    const kstDate = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+                    
+                    const month = kstDate.getMonth() + 1;
+                    const day = kstDate.getDate();
+                    const hours = String(kstDate.getHours()).padStart(2, '0');
+                    const minutes = String(kstDate.getMinutes()).padStart(2, '0');
+                    
                     document.getElementById('priceUpdateTime').textContent = 
                         `(전일 종가: ${month}월 ${day}일 ${hours}:${minutes} 기준)`;
                 }
