@@ -8,634 +8,565 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        *{
+          margin:0;
+          padding:0;
+          box-sizing:border-box;
         }
         
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
+        html, body{
+          height:100%;
+          margin:0;
+          padding:0;
+          overflow:hidden;
         }
         
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
-            background: #f5f7fa;
-            color: #2c3e50;
-            font-size: 17px;
-            zoom: 0.67;
-            display: flex;
-            flex-direction: column;
+        body{
+          font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
+          background:#f5f7fa;
+          color:#2c3e50;
+          font-size:17px;
+          zoom:0.67;
+          display:flex;
+          flex-direction:column;
         }
         
-        .header {
-            flex: 0 0 auto;
-            background: white;
-            padding: 15px 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 10;
+        /* 헤더 */
+        .header{
+          flex:0 0 auto;
+          background:white;
+          padding:15px 20px;
+          box-shadow:0 2px 8px rgba(0,0,0,0.08);
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          z-index:10;
         }
         
-        .header h1 {
-            font-size: 27px;
-            color: #2c3e50;
+        .header h1{
+          font-size:27px;
+          color:#2c3e50;
         }
         
-        .refresh-btn {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 17px;
-            transition: background 0.3s;
+        .refresh-btn{
+          background:#3498db;
+          color:white;
+          border:none;
+          padding:10px 20px;
+          border-radius:6px;
+          cursor:pointer;
+          font-size:17px;
+          transition:background 0.3s;
+        }
+        .refresh-btn:hover{ background:#2980b9; }
+        
+        .price-mode-btn{
+          background:#95a5a6;
+          color:white;
+          border:none;
+          padding:10px 20px;
+          border-radius:6px;
+          cursor:pointer;
+          font-size:17px;
+          transition:background 0.3s;
+        }
+        .price-mode-btn:hover{ background:#7f8c8d; }
+        .price-mode-btn.active{ background:#27ae60; }
+        .price-mode-btn:disabled{ background:#bdc3c7; cursor:not-allowed; }
+        
+        /* 메인 레이아웃 */
+        .container{
+          flex:1;
+          display:grid;
+          grid-template-columns:60% 40%;
+          gap:20px;
+          padding:20px;
+          overflow:hidden;
+          min-height:0;
         }
         
-        .refresh-btn:hover {
-            background: #2980b9;
-        }
-        
-        .price-mode-btn {
-            background: #95a5a6;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 17px;
-            transition: background 0.3s;
-        }
-        
-        .price-mode-btn:hover {
-            background: #7f8c8d;
-        }
-        
-        .price-mode-btn.active {
-            background: #27ae60;
-        }
-        
-        .price-mode-btn:disabled {
-            background: #bdc3c7;
-            cursor: not-allowed;
-        }
-        
-        .container {
-            flex: 1;
-            display: grid;
-            grid-template-columns: 60% 40%;
-            gap: 20px;
-            padding: 20px;
-            overflow: hidden;
-            min-height: 0;  /* 👈 추가 */
-        }
-        
-        .panel {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            overflow-y: auto;
-            min-height: 0;  /* 👈 추가 */
+        .panel{
+          background:white;
+          border-radius:12px;
+          padding:20px;
+          box-shadow:0 2px 8px rgba(0,0,0,0.08);
+          overflow-y:auto;   /* 기본: 패널은 스크롤 */
+          min-height:0;
         }
         
         /* 좌측 패널 */
-        .left-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            height: 100%;
-            min-height: 0;
-        }
-
-        .left-panel > .panel:first-child {
-            flex: 1;  /* 👈 80% */
-            min-height: 0;
-            overflow-y: auto;
+        .left-panel{
+          display:flex;
+          flex-direction:column;
+          gap:20px;
+          height:100%;
+          min-height:0;
         }
         
-        .left-panel > .panel:last-child {
-            flex: 0 0 400px;  /* 👈 20% */
-            min-height: 0;
-            overflow-y: auto;
+        .left-panel > .panel:first-child{
+          flex:1;
+          min-height:0;
+          overflow-y:auto;
         }
         
-        .accounts-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;  /* 👈 3열 그리드 */
-            gap: 15px;
+        .left-panel > .panel:last-child{
+          flex:0 0 400px;
+          min-height:0;
+          overflow-y:auto;
         }
         
-        .account-section {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
+        .accounts-container{
+          display:grid;
+          grid-template-columns:1fr 1fr 1fr;
+          gap:15px;
         }
         
-        .account-title {
-            font-size: 23px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #495057;
+        .account-section{
+          background:#f8f9fa;
+          border-radius:8px;
+          padding:15px;
         }
         
-        .stock-item {
-            background: white;
-            border-radius: 8px;
-            padding: 14px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 2px solid transparent;
+        .account-title{
+          font-size:23px;
+          font-weight:bold;
+          margin-bottom:15px;
+          color:#495057;
         }
         
-        .stock-item:hover {
-            border-color: #3498db;
-            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
+        .stock-item{
+          background:white;
+          border-radius:8px;
+          padding:14px;
+          margin-bottom:10px;
+          cursor:pointer;
+          transition:all 0.2s;
+          border:2px solid transparent;
+        }
+        .stock-item:hover{
+          border-color:#3498db;
+          box-shadow:0 2px 8px rgba(52,152,219,0.2);
+        }
+        .stock-item.active{
+          border-color:#3498db;
+          background:#e3f2fd;
         }
         
-        .stock-item.active {
-            border-color: #3498db;
-            background: #e3f2fd;
+        .stock-name{
+          font-size:21px;
+          font-weight:bold;
+          margin-bottom:8px;
+          color:#2c3e50;
         }
         
-        .stock-name {
-            font-size: 21px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: #2c3e50;
+        .stock-info{
+          display:grid;
+          grid-template-columns:1fr 1fr 1fr;
+          gap:6px;
+          font-size:18px;
+          color:#6c757d;
+          margin-bottom:6px;
         }
         
-        .stock-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 6px;
-            font-size: 18px;
-            color: #6c757d;
-            margin-bottom: 6px;
+        .stock-info-label{
+          font-size:15px;
+          color:#95a5a6;
+          margin-top:4px;
         }
         
-        .stock-info-label {
-            font-size: 15px;
-            color: #95a5a6;
-            margin-top: 4px;
+        .profit-positive{ color:#e74c3c; font-weight:600; }
+        .profit-negative{ color:#3498db; font-weight:600; }
+        
+        .trade-history{ flex:1; }
+        
+        .trade-history-title{
+          font-size:19px;
+          font-weight:bold;
+          margin-bottom:8px;
+          color:#2c3e50;
+          line-height:1.4;
         }
         
-        .profit-positive {
-            color: #e74c3c;
-            font-weight: 600;
+        .trade-history-profit{
+          font-size:21px;
+          font-weight:bold;
+          margin-bottom:12px;
+          padding:10px;
+          background:#f8f9fa;
+          border-radius:6px;
+          text-align:center;
         }
         
-        .profit-negative {
-            color: #3498db;
-            font-weight: 600;
+        #tradeHistoryContainer{
+          display:grid;
+          grid-template-columns:repeat(5, 1fr);
+          gap:8px;
         }
         
-        .trade-history {
-            flex: 1;
+        .trade-item{
+          background:#f8f9fa;
+          border-radius:6px;
+          padding:10px;
+          font-size:16px;
+          line-height:1.5;
         }
         
-        .trade-history-title {
-            font-size: 19px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: #2c3e50;
-            line-height: 1.4;
-        }
-        
-        .trade-history-profit {
-            font-size: 21px;
-            font-weight: bold;
-            margin-bottom: 12px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            text-align: center;
-        }
-        
-        #tradeHistoryContainer {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-        }
-        
-        .trade-item {
-            background: #f8f9fa;
-            border-radius: 6px;
-            padding: 10px;
-            font-size: 16px;
-            line-height: 1.5;
-        }
-        
-        .trade-date {
-            color: #6c757d;
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 4px;
+        .trade-date{
+          color:#6c757d;
+          font-size:16px;
+          font-weight:600;
+          margin-bottom:4px;
         }
         
         /* 날짜별 거래 상세 (박스형) */
-        .date-trade-detail {
-            background: #f8f9fa;
-            border-radius: 6px;  /* 👈 8px → 6px */
-            padding: 10px;  /* 👈 15px → 10px */
-            border-left: 4px solid #3498db;
+        .date-trade-detail{
+          background:#f8f9fa;
+          border-radius:6px;
+          padding:10px;
+          border-left:4px solid #3498db;
+        }
+        .date-trade-detail.buy-item{ border-left-color:#e74c3c; }
+        .date-trade-detail.sell-item{ border-left-color:#3498db; }
+        
+        .trade-type-box{
+          display:inline-block;
+          padding:5px 10px;
+          border-radius:4px;
+          font-size:16px;
+          font-weight:bold;
+          margin-right:10px;
+        }
+        .trade-type-box.buy{ background:#fee; color:#e74c3c; }
+        .trade-type-box.sell{ background:#eef; color:#3498db; }
+        
+        .trade-stock-name{
+          font-size:19px;
+          font-weight:bold;
+          color:#2c3e50;
         }
         
-        .date-trade-detail.buy-item {
-            border-left-color: #e74c3c;
-        }
-        
-        .date-trade-detail.sell-item {
-            border-left-color: #3498db;
-        }
-        
-        .trade-type-box {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 16px;
-            font-weight: bold;
-            margin-right: 10px;
-        }
-        
-        .trade-type-box.buy {
-            background: #fee;
-            color: #e74c3c;
-        }
-        
-        .trade-type-box.sell {
-            background: #eef;
-            color: #3498db;
-        }
-        
-        .trade-stock-name {
-            font-size: 19px;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-        
-        .trade-detail-vertical {
-            margin-top: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            font-size: 17px;
-            color: #6c757d;
+        .trade-detail-vertical{
+          margin-top:10px;
+          display:flex;
+          flex-direction:column;
+          gap:6px;
+          font-size:17px;
+          color:#6c757d;
         }
         
         /* 우측 패널 */
-        .right-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            height: 100%;  /* 👈 추가 */
-            min-height: 0;  /* 👈 추가 */
-            overflow: hidden;
+        .right-panel{
+          display:flex;
+          flex-direction:column;
+          gap:20px;
+          height:100%;
+          min-height:0;
+          overflow:hidden;
         }
         
-        .calendar-section {
-            flex: 1;  /* 👈 나머지 공간 전부 */
-            min-height: 0;
-            display: flex;
-            flex-direction: column;
-        }
+        /* =========================
+           캘린더 섹션 (핵심 정리)
+           ========================= */
         
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .filter-btn {
-            background: #ecf0f1;
-            color: #2c3e50;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        
-        .filter-btn.active {
-            background: #3498db;
-            color: white;
-        }
-        
-        .date-selector {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .date-selector select {
-            padding: 8px 12px;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            font-size: 17px;
-        }
-        
-        .month-nav-btn {
-            background: #ecf0f1;
-            color: #2c3e50;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 21px;
-            font-weight: bold;
-            transition: background 0.2s;
-        }
-        
-        .month-nav-btn:hover {
-            background: #bdc3c7;
-        }
-        
+        /* calendar-section은 panel 기본 overflow-y:auto를 끄고,
+           내부에서 flex/1fr 계산이 되도록 만든다 */
         .panel.calendar-section{
-          display: flex;
-          flex-direction: column;
-          min-height: 0;   /* 중요: 내부 스크롤/1fr 계산이 제대로 되게 */
+          overflow:hidden;
+          display:flex;
+          flex-direction:column;
+          min-height:0;
         }
         
-        .current-stock-name {
-            font-size: 23px;
-            font-weight: bold;
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 15px;
+        .calendar-header{
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          margin-bottom:15px;
         }
         
-        /* 달력 전체 래퍼도 남는 높이를 받도록 */
+        .filter-btn{
+          background:#ecf0f1;
+          color:#2c3e50;
+          border:none;
+          padding:10px 18px;
+          border-radius:6px;
+          cursor:pointer;
+          font-size:18px;
+          font-weight:600;
+          transition:all 0.2s;
+        }
+        .filter-btn.active{ background:#3498db; color:white; }
+        
+        .date-selector{
+          display:flex;
+          gap:10px;
+          align-items:center;
+        }
+        .date-selector select{
+          padding:8px 12px;
+          border:1px solid #dee2e6;
+          border-radius:6px;
+          font-size:17px;
+        }
+        
+        .month-nav-btn{
+          background:#ecf0f1;
+          color:#2c3e50;
+          border:none;
+          padding:8px 16px;
+          border-radius:6px;
+          cursor:pointer;
+          font-size:21px;
+          font-weight:bold;
+          transition:background 0.2s;
+        }
+        .month-nav-btn:hover{ background:#bdc3c7; }
+        
+        .current-stock-name{
+          font-size:23px;
+          font-weight:bold;
+          color:#2c3e50;
+          text-align:center;
+          margin-bottom:15px;
+        }
+        
+        /* 달력 래퍼: 남는 높이를 먹고, 스크롤은 grid로 */
         .calendar{
-          display: flex;
-          flex-direction: column;
-          flex: 1;
-          min-height: 0;   /* 중요 */
-          overflow: hidden; /* 스크롤은 아래 날짜 영역으로 */
+          flex:1;
+          min-height:0;
+          background:white;
+          border-radius:8px;
+          overflow:hidden;
+          display:flex;
+          flex-direction:column;
         }
         
-        /* 헤더는 flex로 늘어나지 않게(높이 고정) */
+        /* 요일 헤더: 고정 높이 */
         .calendar-header-grid{
-          display: grid;
-          grid-template-columns: repeat(7, 1fr);
-          gap: 4px;
-          flex: 0 0 auto;
+          display:grid;
+          grid-template-columns:repeat(7, 1fr);
+          gap:4px;
+          flex:0 0 auto;
+          position:sticky;
+          top:0;
+          background:white;
+          z-index:2;
+          padding-bottom:4px;
         }
-
-        /* 요일 높이 고정 */
+        
         .calendar-day-header{
-          height: 44px;           /* 원하는 고정값 */
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 0 4px;
-          flex: 0 0 auto;
+          height:44px;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:17px;
+          font-weight:bold;
+          color:#6c757d;
         }
         
-        /* 날짜 그리드가 남는 높이를 '통째로' 받아서 6등분 */
+        /* 날짜 그리드: 남는 높이를 전부 먹고 6행 균등 분배 */
         .calendar-grid{
-          flex: 1;
-          min-height: 0;
-          display: grid;
-          grid-template-columns: repeat(7, 1fr);
-          grid-template-rows: repeat(6, minmax(0, 1fr)); /* 핵심: 높이를 6행으로 균등 분배 */
-          gap: 4px;
-        
-          overflow: auto; /* 섹션이 작아지면 여기서 스크롤 */
+          flex:1;
+          min-height:0;
+          display:grid;
+          grid-template-columns:repeat(7, 1fr);
+          grid-template-rows:repeat(6, minmax(0, 1fr));
+          gap:4px;
+          overflow:auto;  /* 작아지면 여기만 스크롤 */
         }
         
-        /* 날짜 영역만 스크롤 */
+        /* 날짜 칸: aspect-ratio 제거 + 셀 높이 채움 */
         .calendar-day{
-          height: 100%;
-          aspect-ratio: auto; /* 기존 1.4 제거 */
-          min-height: 0;      /* 1fr 셀 내부에서 overflow가 제대로 되게 */
-          overflow: hidden;   /* 기본은 숨김 */
+          height:100%;
+          min-height:0;
+          border:1px solid #e9ecef;
+          border-radius:6px;
+          padding:8px 4px;
+          cursor:pointer;
+          transition:all 0.2s;
+          display:flex;
+          flex-direction:column;
+          align-items:flex-start;
+          justify-content:flex-start;
+          font-size:14px;
+          overflow:hidden;
         }
-                      
-        .calendar-day {
-            aspect-ratio: 1.4;
-            border: 1px solid #e9ecef;
-            border-radius: 6px;
-            padding: 8px 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: flex-start;
-            font-size: 14px;
+        .calendar-day:hover{
+          background:#f8f9fa;
+          transform:translateY(-2px);
+          box-shadow:0 2px 8px rgba(0,0,0,0.1);
         }
-
-        .calendar-header-grid{
-          position: sticky;
-          top: 0;
-          background: white;
-          z-index: 2;
+        .calendar-day.active{
+          background:#f0f4f8;
+          color:#2c3e50;
+          border-color:#3498db;
         }
-        
-        .calendar-day:hover {
-            background: #f8f9fa;
-            transform: translateY(-2px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        .calendar-day.empty{
+          background:#f8f9fa;
+          cursor:default;
         }
-        
-        .calendar-day.active {
-            background: #f0f4f8;
-            color: #2c3e50;
-            border-color: #3498db;
+        .calendar-day.empty:hover{
+          transform:none;
+          box-shadow:none;
         }
         
-        .calendar-day.empty {
-            background: #f8f9fa;
-            cursor: default;
+        .day-number{
+          font-size:19px;
+          font-weight:bold;
+          margin-bottom:3px;
+        }
+        .day-buy{
+          font-size:16px;
+          color:#e74c3c;
+          font-weight:600;
+          line-height:1.2;
+        }
+        .day-sell{
+          font-size:16px;
+          color:#3498db;
+          font-weight:600;
+          line-height:1.2;
         }
         
-        .calendar-day.empty:hover {
-            transform: none;
-            box-shadow: none;
-        }
-
+        /* 요약: 바닥 공백 제거 */
         .calendar-summary{
-          flex: 0 0 auto;   /* 추가 */
-          margin-top: 10px; /* (선택) 그리드와 간격 */
-          /* margin-bottom은 섹션 맨 아래에 있을 때 불필요한 공백 만들 수 있어요 */
-          margin-bottom: 0; /* 권장: 기존 15px → 0 */
+          flex:0 0 auto;
+          display:flex;
+          justify-content:space-around;
+          padding:15px;
+          background:#f8f9fa;
+          border-radius:8px;
+          margin-top:10px;
+          margin-bottom:0;
         }
         
-        .day-number {
-            font-size: 19px;
-            font-weight: bold;
-            margin-bottom: 3px;
+        .summary-item{ text-align:center; }
+        .summary-label{
+          font-size:16px;
+          color:#6c757d;
+          margin-bottom:6px;
         }
-        
-        .day-buy {
-            font-size: 16px;
-            color: #e74c3c;
-            font-weight: 600;
-            line-height: 1.2;
-        }
-        
-        .day-sell {
-            font-size: 16px;
-            color: #3498db;
-            font-weight: 600;
-            line-height: 1.2;
-        }
-        
-        .calendar-summary {
-            display: flex;
-            justify-content: space-around;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-        
-        .summary-item {
-            text-align: center;
-        }
-        
-        .summary-label {
-            font-size: 16px;
-            color: #6c757d;
-            margin-bottom: 6px;
-        }
-        
-        .summary-value {
-            font-size: 23px;
-            font-weight: bold;
+        .summary-value{
+          font-size:23px;
+          font-weight:bold;
         }
         
         /* 탭 영역 */
-        .tab-section {
-            flex: 0 0 400px;  /* 👈 고정 높이 */
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
-            overflow: hidden;
-        }
-
-        
-        .tab-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
+        .tab-section{
+          flex:0 0 400px;
+          display:flex;
+          flex-direction:column;
+          min-height:0;
+          overflow:hidden;
         }
         
-        .tab-btn {
-            flex: 1;
-            background: #ecf0f1;
-            color: #2c3e50;
-            border: none;
-            padding: 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: 600;
-            transition: all 0.2s;
+        .tab-buttons{
+          display:flex;
+          gap:10px;
+          margin-bottom:15px;
         }
         
-        .tab-btn.active {
-            background: #3498db;
-            color: white;
+        .tab-btn{
+          flex:1;
+          background:#ecf0f1;
+          color:#2c3e50;
+          border:none;
+          padding:12px;
+          border-radius:6px;
+          cursor:pointer;
+          font-size:18px;
+          font-weight:600;
+          transition:all 0.2s;
         }
+        .tab-btn.active{ background:#3498db; color:white; }
         
-        .tab-content {
-            display: none;
-            flex: 1;
+        .tab-content{
+          display:none;
+          flex:1;
+          min-height:0;
         }
-        
-        .tab-content.active {
-            display: flex;
-            flex-direction: column;
+        .tab-content.active{
+          display:flex;
+          flex-direction:column;
         }
         
         /* 도넛 차트 영역 */
-        .donut-charts-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;  /* 👈 flex → grid */
-            gap: 15px;  /* 👈 10px → 15px */
-            flex: 1;
-            min-height: 0;
-            background: #f8f9fa;  /* 👈 추가 */
-            border-radius: 8px;  /* 👈 추가 */
-            padding: 15px;  /* 👈 추가 */
+        .donut-charts-container{
+          display:grid;
+          grid-template-columns:1fr 1fr 1fr;
+          gap:15px;
+          flex:1;
+          min-height:0;
+          background:#f8f9fa;
+          border-radius:8px;
+          padding:15px;
         }
         
-        .donut-chart-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: white;
-            border-radius: 8px;
-            padding: 10px;
-            max-height: 350px;  /* 👈 280px → 350px */
+        .donut-chart-item{
+          display:flex;
+          flex-direction:column;
+          background:white;
+          border-radius:8px;
+          padding:10px;
+          max-height:350px;
+          min-height:0;
         }
         
-        .donut-chart-title {
-            font-size: 17px;  /* 👈 16px → 14px */
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;  /* 👈 10px → 5px */
-            text-align: center;
+        .donut-chart-title{
+          font-size:17px;
+          font-weight:bold;
+          color:#2c3e50;
+          margin-bottom:5px;
+          text-align:center;
         }
         
-        .donut-chart-canvas {
-            flex: 1;
-            position: relative;
-            min-height: 0;  /* 👈 추가 */
+        .donut-chart-canvas{
+          flex:1;
+          position:relative;
+          min-height:0;
         }
         
         /* 매매일기 */
-        .diary-content {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
+        .diary-content{
+          display:flex;
+          flex-direction:column;
+          height:100%;
+          min-height:0;
         }
         
-        .diary-textarea {
-            flex: 1;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            padding: 12px;
-            font-size: 17px;
-            resize: none;
-            font-family: inherit;
-            line-height: 1.6;
+        .diary-textarea{
+          flex:1;
+          border:1px solid #dee2e6;
+          border-radius:6px;
+          padding:12px;
+          font-size:17px;
+          resize:none;
+          font-family:inherit;
+          line-height:1.6;
+          min-height:0;
         }
         
-        .diary-save-btn {
-            margin-top: 10px;
-            background: #27ae60;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 17px;
-            font-weight: 600;
+        .diary-save-btn{
+          margin-top:10px;
+          background:#27ae60;
+          color:white;
+          border:none;
+          padding:10px;
+          border-radius:6px;
+          cursor:pointer;
+          font-size:17px;
+          font-weight:600;
         }
+        .diary-save-btn:hover{ background:#229954; }
         
-        .diary-save-btn:hover {
-            background: #229954;
+        .loading{
+          text-align:center;
+          padding:60px 20px;
+          color:#95a5a6;
+          font-size:17px;
+          line-height:1.8;
         }
-        
-        .loading {
-            text-align: center;
-            padding: 60px 20px;
-            color: #95a5a6;
-            font-size: 17px;
-            line-height: 1.8;
-        }
+
     </style>
 </head>
 <body>
