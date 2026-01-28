@@ -910,10 +910,6 @@
                 const text = await response.text();
                 const lines = text.trim().split('\n');
                 
-                console.log('총 라인 수:', lines.length);
-                console.log('14번째 라인:', lines[13]);
-                
-                // 14번째 행 (index 13)
                 if (lines.length >= 14) {
                     const line = lines[13];
                     const values = [];
@@ -933,21 +929,14 @@
                     }
                     values.push(current.replace(/^"|"$/g, '').trim());
                     
-                    console.log('파싱된 값들:', values);
-                    console.log('A14(0):', values[0]);
-                    console.log('H14(7):', values[7]);
-                    console.log('I14(8):', values[8]);
-                    console.log('J14(9):', values[9]);
-                    console.log('K14(10):', values[10]);
-                    
-                    // H14(7), I14(8), J14(9), K14(10), A14(0) 추출
+                    // H14(7), I14(8), J14(9), K14(10), L14(11) 추출
                     depositData.종합 = parseFloat(values[7]?.replace(/,/g, '') || 0);
                     depositData.ETF = parseFloat(values[8]?.replace(/,/g, '') || 0);
                     depositData.미국 = parseFloat(values[9]?.replace(/,/g, '') || 0);
                     depositData.환율 = parseFloat(values[10]?.replace(/,/g, '') || 0);
-                    depositData.환율날짜 = values[0] || '';
+                    depositData.환율날짜 = values[11] || '';  // L14
                     
-                    console.log('최종 depositData:', depositData);
+                    console.log('예수금 데이터 로드:', depositData);
                 }
             } catch (error) {
                 console.error('예수금 데이터 로드 실패:', error);
