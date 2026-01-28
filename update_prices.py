@@ -120,34 +120,49 @@ def get_korea_price_from_naver(code):
         print(f"   ❌ 오류: {e}")
         return None
 
-def get_us_price_from_naver(ticker):
+def get_us_price_from_naver(ticker, is_etf=True):
     """네이버페이 증권에서 미국 주식/ETF 현재가 크롤링"""
-    url = f"https://m.stock.naver.com/worldstock/stock/{ticker}/total"
+    # ETF는 .K 붙이기
+    if is_etf:
+        url = f"https://m.stock.naver.com/worldstock/etf/{ticker}.K/total"
+    else:
+        url = f"https://m.stock.naver.com/worldstock/stock/{ticker}/total"
+    
     headers = {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
     }
     
     try:
-        print(f"   🌐 네이버페이 접속 시도: {ticker}")
+        print(f"   🌐 네이버페이 접속: {url}")
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
         
-        print(f"   ✓ HTTP 응답: {response.status_code}")
-        
         soup = BeautifulSoup(response.text, 'html.parser')
         
-        # 가격 추출 (클래스명에 StockPriceInfo_close-price 포함)
-        price_div = soup.select_one('div[class*="StockPriceInfo_close-price"]')
+        # 선택자 1: StockInfoPreAfter_price
+        price_div = soup.select_one('div[class*="StockInfoPreAfter_price"]')
+        if price_div:
+            span = price_div.find('span', class_=lambda x: x and 'StockInfoPreAfter_num' in x)
+            if span:
+                price_text = span.text.strip().replace(',', '')
+                if price_text.replace('.', '').isdigit():
+                    price = float(price_text)
+                    print(f"   ✅ 가격: ${price}")
+                    return {
+                        'price': round(price, 2),
+                        'source': 'naver',
+                        'timestamp': datetime.now().isoformat()
+                    }
         
+        # 선택자 2: 백업 (이전 방식)
+        price_div = soup.select_one('div[class*="StockPriceInfo_close-price"]')
         if price_div:
             span = price_div.find('span')
             if span:
                 price_text = span.text.strip().replace(',', '')
-                print(f"   텍스트: '{price_text}'")
-                
                 if price_text.replace('.', '').isdigit():
                     price = float(price_text)
-                    print(f"   ✅ 가격 파싱 성공: ${price}")
+                    print(f"   ✅ 가격: ${price}")
                     return {
                         'price': round(price, 2),
                         'source': 'naver',
