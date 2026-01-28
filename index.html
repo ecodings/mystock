@@ -369,20 +369,20 @@
         }
         
         .calendar {
-            flex: 1;  /* 👈 추가 */
+            flex: 1;
             background: white;
             border-radius: 8px;
             margin-bottom: 15px;
-            overflow: auto;  /* 👈 hidden → auto */
             display: flex;
             flex-direction: column;
+            overflow: hidden;  /* auto → hidden */
         }
         
         .calendar-header-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 4px;
-            margin-bottom: 4px;
+            flex: 0 0 auto;  /* 고정 크기 */
         }
         
         .calendar-grid {
@@ -394,17 +394,18 @@
         
         .calendar-day-header {
             text-align: center;
-            padding: 10px 4px;
-            font-size: 17px;
+            padding: 6px 4px;  /* 10px → 6px */
+            font-size: 14px;    /* 17px → 14px */
             font-weight: bold;
             color: #6c757d;
         }
         
         .calendar-day {
-            aspect-ratio: 1.4;
+            /* aspect-ratio: 1.4; */ /* 👈 삭제! */
+            min-height: 0;  /* 👈 추가 */
             border: 1px solid #e9ecef;
             border-radius: 6px;
-            padding: 8px 4px;
+            padding: 6px 4px;  /* 8px → 6px */
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
@@ -412,6 +413,7 @@
             align-items: flex-start;
             justify-content: flex-start;
             font-size: 14px;
+            overflow: hidden;  /* 👈 추가 */
         }
         
         .calendar-day:hover {
