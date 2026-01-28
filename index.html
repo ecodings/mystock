@@ -611,7 +611,7 @@
             <div id="portfolioSummary" style="font-size: 14px; color: #2c3e50; margin-top: 8px; font-weight: 500;"></div>
         </div>
         <div style="display: flex; gap: 10px;">
-            <button class="price-mode-btn active" id="prevCloseBtn" onclick="loadPrevCloseMode()">📊 전일 종가</button>
+            <button class="price-mode-btn active" id="prevCloseBtn" onclick="loadPrevCloseMode()">📊 현재가</button>
             <button class="price-mode-btn" id="realtimeBtn" onclick="loadRealtimeMode()">🔄 실시간 조회</button>
             <button class="refresh-btn" onclick="loadData()">🔄 새로고침</button>
         </div>
@@ -1064,7 +1064,7 @@
             return data;
         }
         
-        // 전일 종가 로드
+        // 현재가 로드
         async function loadPrevClosePrices() {
             try {
                 // 캐시 방지를 위한 타임스탬프 추가
@@ -1100,7 +1100,7 @@
                     });
                     
                     document.getElementById('priceUpdateTime').textContent = 
-                        `(전일 종가: ${month}월 ${day}일 ${hours}:${minutes} 기준)`;
+                        `(현재가: ${month}월 ${day}일 ${hours}:${minutes} 기준)`;
                 }
                 
                 tradeData.forEach(trade => {
@@ -1111,7 +1111,7 @@
                     }
                 });
                 
-                console.log('✅ 전일 종가 적용 완료');
+                console.log('✅ 현재가 적용 완료');
             } catch (error) {
                 console.log('⚠️ stock_prices.json 없음 - 매수가 기준 사용');
                 document.getElementById('priceUpdateTime').textContent = '';
@@ -1151,27 +1151,27 @@
                         console.log(`✅ ${code}: ${price}원`);
                     } else {
                         failCount++;
-                        console.warn(`⚠️ ${code}: 가격 조회 실패 (전일 종가 사용)`);
+                        console.warn(`⚠️ ${code}: 가격 조회 실패 (현재가 사용)`);
                     }
                     
                     await new Promise(resolve => setTimeout(resolve, 500));
                     
                 } catch (error) {
                     failCount++;
-                    console.error(`❌ ${code} 조회 오류 (전일 종가 사용):`, error.message);
+                    console.error(`❌ ${code} 조회 오류 (현재가 사용):`, error.message);
                 }
             }
             
             console.log(`📊 실시간 조회 완료: 성공 ${successCount}개, 실패 ${failCount}개`);
             
             if (successCount === 0) {
-                console.log('⚠️ 실시간 조회 전체 실패 - stock_prices.json의 전일 종가 사용');
+                console.log('⚠️ 실시간 조회 전체 실패 - stock_prices.json의 현재가 사용');
             }
             
             return successCount;
         }
         
-        // 전일 종가 모드
+        // 현재가 모드
         async function loadPrevCloseMode() {
             const btn = document.getElementById('prevCloseBtn');
             const realtimeBtn = document.getElementById('realtimeBtn');
@@ -1179,7 +1179,7 @@
             btn.classList.add('active');
             realtimeBtn.classList.remove('active');
             
-            console.log('📊 전일 종가 모드');
+            console.log('📊 현재가 모드');
             await loadPrevClosePrices();
             renderAccounts();
             updateCalendar();
@@ -1338,7 +1338,7 @@
                             <div class="stock-info stock-info-label" style="margin-top: 8px;">
                                 <div>보유수량</div>
                                 <div>평균단가</div>
-                                <div>전일종가</div>
+                                <div>현재가</div>
                             </div>
                             
                             <div class="stock-info" style="margin-bottom: 8px;">
