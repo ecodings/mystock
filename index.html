@@ -397,6 +397,7 @@
           align-items: center;
           justify-content: center;
           padding: 0 4px;
+          flex: 0 0 auto;
         }
         
         /* 날짜 그리드가 남는 높이를 '통째로' 받아서 6등분 */
@@ -413,6 +414,7 @@
         
         /* 날짜 영역만 스크롤 */
         .calendar-day{
+          height: 100%;
           aspect-ratio: auto; /* 기존 1.4 제거 */
           min-height: 0;      /* 1fr 셀 내부에서 overflow가 제대로 되게 */
           overflow: hidden;   /* 기본은 숨김 */
