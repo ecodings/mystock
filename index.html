@@ -365,6 +365,7 @@
           flex-direction: column;
           min-height: 0;   /* 중요: 내부 스크롤/1fr 계산이 제대로 되게 */
         }
+        
         .current-stock-name {
             font-size: 23px;
             font-weight: bold;
@@ -461,6 +462,13 @@
         .calendar-day.empty:hover {
             transform: none;
             box-shadow: none;
+        }
+
+        .calendar-summary{
+          flex: 0 0 auto;   /* 추가 */
+          margin-top: 10px; /* (선택) 그리드와 간격 */
+          /* margin-bottom은 섹션 맨 아래에 있을 때 불필요한 공백 만들 수 있어요 */
+          margin-bottom: 0; /* 권장: 기존 15px → 0 */
         }
         
         .day-number {
