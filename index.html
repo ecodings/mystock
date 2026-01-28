@@ -360,6 +360,11 @@
             background: #bdc3c7;
         }
         
+        .panel.calendar-section{
+          display: flex;
+          flex-direction: column;
+          min-height: 0;   /* 중요: 내부 스크롤/1fr 계산이 제대로 되게 */
+        }
         .current-stock-name {
             font-size: 23px;
             font-weight: bold;
@@ -368,38 +373,51 @@
             margin-bottom: 15px;
         }
         
-        .calendar {
-            flex: 1;  /* 👈 추가 */
-            background: white;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            overflow: auto;  /* 👈 hidden → auto */
-            display: flex;
-            flex-direction: column;
+        /* 달력 전체 래퍼도 남는 높이를 받도록 */
+        .calendar{
+          display: flex;
+          flex-direction: column;
+          flex: 1;
+          min-height: 0;   /* 중요 */
+          overflow: hidden; /* 스크롤은 아래 날짜 영역으로 */
         }
         
-        .calendar-header-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-            margin-bottom: 4px;
+        /* 헤더는 flex로 늘어나지 않게(높이 고정) */
+        .calendar-header-grid{
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          gap: 4px;
+          flex: 0 0 auto;
+        }
+
+        /* 요일 높이 고정 */
+        .calendar-day-header{
+          height: 44px;           /* 원하는 고정값 */
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0 4px;
         }
         
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-            flex: 1;  /* 👈 추가 */
+        /* 날짜 그리드가 남는 높이를 '통째로' 받아서 6등분 */
+        .calendar-grid{
+          flex: 1;
+          min-height: 0;
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          grid-template-rows: repeat(6, minmax(0, 1fr)); /* 핵심: 높이를 6행으로 균등 분배 */
+          gap: 4px;
+        
+          overflow: auto; /* 섹션이 작아지면 여기서 스크롤 */
         }
         
-        .calendar-day-header {
-            text-align: center;
-            padding: 10px 4px;
-            font-size: 17px;
-            font-weight: bold;
-            color: #6c757d;
+        /* 날짜 영역만 스크롤 */
+        .calendar-day{
+          aspect-ratio: auto; /* 기존 1.4 제거 */
+          min-height: 0;      /* 1fr 셀 내부에서 overflow가 제대로 되게 */
+          overflow: hidden;   /* 기본은 숨김 */
         }
-        
+                      
         .calendar-day {
             aspect-ratio: 1.4;
             border: 1px solid #e9ecef;
@@ -412,6 +430,13 @@
             align-items: flex-start;
             justify-content: flex-start;
             font-size: 14px;
+        }
+
+        .calendar-header-grid{
+          position: sticky;
+          top: 0;
+          background: white;
+          z-index: 2;
         }
         
         .calendar-day:hover {
@@ -650,16 +675,19 @@
                 <div class="current-stock-name" id="currentStockName">전체</div>
                 
                 <div class="calendar">
-                    <div class="calendar-grid">
-                        <div class="calendar-day-header">일</div>
-                        <div class="calendar-day-header">월</div>
-                        <div class="calendar-day-header">화</div>
-                        <div class="calendar-day-header">수</div>
-                        <div class="calendar-day-header">목</div>
-                        <div class="calendar-day-header">금</div>
-                        <div class="calendar-day-header">토</div>
-                    </div>
+                  <div class="calendar-header-grid">
+                    <div class="calendar-day-header">일</div>
+                    <div class="calendar-day-header">월</div>
+                    <div class="calendar-day-header">화</div>
+                    <div class="calendar-day-header">수</div>
+                    <div class="calendar-day-header">목</div>
+                    <div class="calendar-day-header">금</div>
+                    <div class="calendar-day-header">토</div>
+                  </div>
+                
+                  <div class="calendar-days">
                     <div class="calendar-grid" id="calendarGrid"></div>
+                  </div>
                 </div>
                 
                 <div class="calendar-summary">
