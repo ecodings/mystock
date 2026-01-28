@@ -910,6 +910,11 @@
                 const text = await response.text();
                 const lines = text.trim().split('\n');
                 
+                // 👇 이 부분 추가
+                console.log('===== deposit CSV 디버깅 =====');
+                console.log('총 라인:', lines.length);
+                console.log('14번째 라인:', lines[13]);
+                
                 if (lines.length >= 14) {
                     const line = lines[13];
                     const values = [];
@@ -929,14 +934,25 @@
                     }
                     values.push(current.replace(/^"|"$/g, '').trim());
                     
-                    // H14(7), I14(8), J14(9), K14(10), L14(11) 추출
+                    // 👇 이 부분 추가
+                    console.log('파싱된 values:', values);
+                    console.log('values 길이:', values.length);
+                    console.log('각 컬럼:', {
+                        'A(0)': values[0],
+                        'H(7)': values[7],
+                        'I(8)': values[8],
+                        'J(9)': values[9],
+                        'K(10)': values[10],
+                        'L(11)': values[11]
+                    });
+                    
                     depositData.종합 = parseFloat(values[7]?.replace(/,/g, '') || 0);
                     depositData.ETF = parseFloat(values[8]?.replace(/,/g, '') || 0);
                     depositData.미국 = parseFloat(values[9]?.replace(/,/g, '') || 0);
                     depositData.환율 = parseFloat(values[10]?.replace(/,/g, '') || 0);
-                    depositData.환율날짜 = values[11] || '';  // L14
+                    depositData.환율날짜 = values[11] || '';
                     
-                    console.log('예수금 데이터 로드:', depositData);
+                    console.log('최종 depositData:', depositData);
                 }
             } catch (error) {
                 console.error('예수금 데이터 로드 실패:', error);
@@ -1285,12 +1301,12 @@
                 // 예수금 표시
                 let depositText = '';
                 if (accountName === '종합') {
-                    depositText = `<span style="font-size: 14px; color: #7f8c8d; margin-left: 10px;">예수금: ${depositData.종합.toLocaleString()}원</span>`;
+                    depositText = `<span style="font-size: 18px; color: #7f8c8d; margin-left: 10px;">예수금: ${depositData.종합.toLocaleString()}원</span>`;
                 } else if (accountName === 'ETF') {
-                    depositText = `<span style="font-size: 14px; color: #7f8c8d; margin-left: 10px;">예수금: ${depositData.ETF.toLocaleString()}원</span>`;
+                    depositText = `<span style="font-size: 18px; color: #7f8c8d; margin-left: 10px;">예수금: ${depositData.ETF.toLocaleString()}원</span>`;
                 } else if (accountName === '미국') {
                     const rateInfo = depositData.환율 > 0 ? ` (환율 1$=${depositData.환율.toLocaleString()}원, ${depositData.환율날짜} 기준)` : '';
-                    depositText = `<span style="font-size: 14px; color: #7f8c8d; margin-left: 10px;">예수금: $${depositData.미국.toLocaleString()}${rateInfo}</span>`;
+                    depositText = `<span style="font-size: 18px; color: #7f8c8d; margin-left: 10px;">예수금: $${depositData.미국.toLocaleString()}${rateInfo}</span>`;
                 }
                 
                 html += `<div class="account-section">`;
