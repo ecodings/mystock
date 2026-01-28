@@ -120,6 +120,47 @@ def get_korea_price_from_naver(code):
         print(f"   ❌ 오류: {e}")
         return None
 
+def get_us_price_from_naver(ticker):
+    """네이버페이 증권에서 미국 주식/ETF 현재가 크롤링"""
+    url = f"https://m.stock.naver.com/worldstock/stock/{ticker}/total"
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1'
+    }
+    
+    try:
+        print(f"   🌐 네이버페이 접속 시도: {ticker}")
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        
+        print(f"   ✓ HTTP 응답: {response.status_code}")
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        # 가격 추출 (클래스명에 StockPriceInfo_close-price 포함)
+        price_div = soup.select_one('div[class*="StockPriceInfo_close-price"]')
+        
+        if price_div:
+            span = price_div.find('span')
+            if span:
+                price_text = span.text.strip().replace(',', '')
+                print(f"   텍스트: '{price_text}'")
+                
+                if price_text.replace('.', '').isdigit():
+                    price = float(price_text)
+                    print(f"   ✅ 가격 파싱 성공: ${price}")
+                    return {
+                        'price': round(price, 2),
+                        'source': 'naver',
+                        'timestamp': datetime.now().isoformat()
+                    }
+        
+        print(f"   ❌ 가격을 찾을 수 없음")
+        return None
+        
+    except Exception as e:
+        print(f"   ❌ 오류: {e}")
+        return None
+
 def get_korea_prev_close(code):
     """한국 종목 가격 가져오기 (네이버 → yfinance 순서)"""
     # 1차: 네이버 크롤링
@@ -168,7 +209,14 @@ def get_korea_prev_close(code):
         return None
 
 def get_us_prev_close(ticker):
-    """미국 주식의 전일 종가 가져오기 (USD)"""
+    """미국 주식의 가격 가져오기 (네이버 → yfinance 순서)"""
+    # 1차: 네이버페이 크롤링
+    result = get_us_price_from_naver(ticker)
+    if result:
+        print(f"✅ {ticker}: ${result['price']:.2f} (네이버)")
+        return result
+    
+    # 2차: yfinance 백업
     try:
         stock = yf.Ticker(ticker)
         hist = stock.history(period="5d")
