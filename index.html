@@ -601,6 +601,7 @@
         <div>
             <h1>📊 주식 매매 일지</h1>
             <div id="priceUpdateTime" style="font-size: 17px; color: #7f8c8d; margin-top: 4px;"></div>
+            <div id="portfolioSummary" style="font-size: 14px; color: #2c3e50; margin-top: 8px; font-weight: 500;"></div>
         </div>
         <div style="display: flex; gap: 10px;">
             <button class="price-mode-btn active" id="prevCloseBtn" onclick="loadPrevCloseMode()">📊 전일 종가</button>
@@ -714,6 +715,7 @@
     <script>
         // 전역 변수
         let tradeData = [];
+        let depositData = { 종합: 0, ETF: 0, 미국: 0, 환율: 0, 환율날짜: '' };  // 예수금 데이터
         let selectedStock = null;
         let selectedDate = null;
         let currentYear = new Date().getFullYear();
@@ -726,6 +728,7 @@
         
         const SHEET_ID = '1AMJsDNUm0y_tFNC3zW3zbWPqFTovEyAl-cnhPnSokSo';
         const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQnvayNXW-vM8MpG490_EmlbwJWb7d5sWshz6W_YK4zrBMb1vNKLiOZK254phq-cgofWhZ8a45NxlZ/pub?gid=0&single=true&output=csv';
+        const DEPOSIT_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQnvayNXW-vM8MpG490_EmlbwJWb7d5sWshz6W_YK4zrBMb1vNKLiOZK254phq-cgofWhZ8a45NxlZ/pub?gid=2081265323&single=true&output=csv';
         
         // Apps Script 웹 앱 URL
         const DIARY_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwWuurYz_PEhuK90Pccl_k8vTZk_lvHxmgy8orGwsHTxdz0YyV21SbWUMAhKWClfDK23Q/exec';
@@ -800,11 +803,13 @@
                 console.log('총 거래 데이터:', tradeData.length, '개');
                 
                 await loadPrevClosePrices();
-                await loadDiaryData();  // 👈 일기 데이터 로드 추가
+                await loadDiaryData();
+                await loadDepositData();  // 예수금 데이터 로드
                 
                 renderAccounts();
                 updateCalendar();
                 renderDonutCharts();
+                updatePortfolioSummary();  // 포트폴리오 요약 업데이트
                 
                 document.getElementById('prevCloseBtn').classList.add('active');
                 document.getElementById('realtimeBtn').classList.remove('active');
@@ -886,6 +891,109 @@
             } catch (error) {
                 console.error('일기 데이터 로드 실패:', error);
             }
+        }
+        
+        // 예수금 데이터 로드
+        async function loadDepositData() {
+            try {
+                const response = await fetch(DEPOSIT_URL);
+                const text = await response.text();
+                const lines = text.trim().split('\n');
+                
+                // 14번째 행 (index 13)
+                if (lines.length >= 14) {
+                    const line = lines[13];
+                    const values = [];
+                    let current = '';
+                    let inQuotes = false;
+                    
+                    for (let i = 0; i < line.length; i++) {
+                        const char = line[i];
+                        if (char === '"') {
+                            inQuotes = !inQuotes;
+                        } else if (char === ',' && !inQuotes) {
+                            values.push(current.replace(/^"|"$/g, '').trim());
+                            current = '';
+                        } else {
+                            current += char;
+                        }
+                    }
+                    values.push(current.replace(/^"|"$/g, '').trim());
+                    
+                    // H14(7), I14(8), J14(9), K14(10), A14(0) 추출
+                    depositData.종합 = parseFloat(values[7]?.replace(/,/g, '') || 0);
+                    depositData.ETF = parseFloat(values[8]?.replace(/,/g, '') || 0);
+                    depositData.미국 = parseFloat(values[9]?.replace(/,/g, '') || 0);
+                    depositData.환율 = parseFloat(values[10]?.replace(/,/g, '') || 0);
+                    depositData.환율날짜 = values[0] || '';  // A14: 날짜
+                    
+                    console.log('예수금 데이터 로드:', depositData);
+                }
+            } catch (error) {
+                console.error('예수금 데이터 로드 실패:', error);
+            }
+        }
+        
+        // 포트폴리오 전체 요약 업데이트
+        function updatePortfolioSummary() {
+            let totalInvestment = 0;  // 총 투자금 (매수 - 매도)
+            let totalValue = 0;       // 총 평가금액
+            
+            const accounts = {};
+            
+            tradeData.forEach(trade => {
+                if (!accounts[trade.account]) {
+                    accounts[trade.account] = {};
+                }
+                
+                if (!accounts[trade.account][trade.stockName]) {
+                    accounts[trade.account][trade.stockName] = {
+                        quantity: 0,
+                        totalBuy: 0,
+                        buyCount: 0,
+                        prevClose: trade.prevClose
+                    };
+                }
+                
+                const stock = accounts[trade.account][trade.stockName];
+                
+                if (trade.type === '매수') {
+                    stock.quantity += trade.quantity;
+                    stock.totalBuy += trade.price * trade.quantity;
+                    stock.buyCount += trade.quantity;
+                    totalInvestment += trade.price * trade.quantity;
+                } else if (trade.type === '매도') {
+                    const currentAvgPrice = stock.totalBuy / stock.buyCount;
+                    stock.quantity -= trade.quantity;
+                    stock.totalBuy -= currentAvgPrice * trade.quantity;
+                    stock.buyCount -= trade.quantity;
+                    totalInvestment -= trade.price * trade.quantity;
+                }
+            });
+            
+            // 총 평가금액 계산
+            Object.keys(accounts).forEach(accountName => {
+                Object.keys(accounts[accountName]).forEach(stockName => {
+                    const stock = accounts[accountName][stockName];
+                    if (stock.quantity > 0) {
+                        totalValue += stock.prevClose * stock.quantity;
+                    }
+                });
+            });
+            
+            const profit = totalValue - totalInvestment;
+            const profitRate = totalInvestment !== 0 ? (profit / totalInvestment * 100) : 0;
+            const profitClass = profit >= 0 ? 'profit-positive' : 'profit-negative';
+            const profitSign = profit >= 0 ? '+' : '';
+            
+            // 헤더에 표시
+            const summary = `
+                총 투자: ${Math.floor(totalInvestment).toLocaleString()}원 | 
+                평가액: ${Math.floor(totalValue).toLocaleString()}원 | 
+                <span class="${profitClass}">${profitSign}${Math.floor(profit).toLocaleString()}원 (${profitSign}${profitRate.toFixed(2)}%)</span>
+            `;
+            
+            document.getElementById('portfolioSummary').innerHTML = summary;
         }
         
         // CSV 파싱
@@ -1165,8 +1273,19 @@
             accountOrder.forEach(accountName => {
                 if (!accounts[accountName]) return;
                 
+                // 예수금 표시
+                let depositText = '';
+                if (accountName === '종합') {
+                    depositText = `<span style="font-size: 14px; color: #7f8c8d; margin-left: 10px;">예수금: ${depositData.종합.toLocaleString()}원</span>`;
+                } else if (accountName === 'ETF') {
+                    depositText = `<span style="font-size: 14px; color: #7f8c8d; margin-left: 10px;">예수금: ${depositData.ETF.toLocaleString()}원</span>`;
+                } else if (accountName === '미국') {
+                    const rateInfo = depositData.환율 > 0 ? ` (환율 1$=${depositData.환율.toLocaleString()}원, ${depositData.환율날짜} 기준)` : '';
+                    depositText = `<span style="font-size: 14px; color: #7f8c8d; margin-left: 10px;">예수금: $${depositData.미국.toLocaleString()}${rateInfo}</span>`;
+                }
+                
                 html += `<div class="account-section">`;
-                html += `<div class="account-title">${accountName}</div>`;
+                html += `<div class="account-title">${accountName}${depositText}</div>`;
                 
                 // 종목을 평가금액 순으로 정렬
                 const stockList = Object.keys(accounts[accountName])
