@@ -120,55 +120,84 @@ def get_korea_price_from_naver(code):
         print(f"   ❌ 오류: {e}")
         return None
 
-def get_us_price_from_naver(ticker, is_etf=True):
-    """네이버페이 증권에서 미국 주식/ETF 현재가 크롤링"""
-    # ETF는 .K 붙이기
-    if is_etf:
-        url = f"https://m.stock.naver.com/worldstock/etf/{ticker}.K/total"
-    else:
-        url = f"https://m.stock.naver.com/worldstock/stock/{ticker}/total"
-    
+def get_us_price_from_naver(ticker):
+    """네이버페이 증권에서 미국 ETF 현재가 크롤링"""
+    # ETF URL 형식: /worldstock/etf/TICKER.K/total
+    url = f"https://m.stock.naver.com/worldstock/etf/{ticker}.K/total"
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     }
     
     try:
-        print(f"   🌐 네이버페이 접속: {url}")
+        print(f"   🌐 네이버페이 접속 시도: {url}")
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
+        
+        print(f"   ✓ HTTP 응답: {response.status_code}")
         
         soup = BeautifulSoup(response.text, 'html.parser')
         
         # 선택자 1: StockInfoPreAfter_price
         price_div = soup.select_one('div[class*="StockInfoPreAfter_price"]')
         if price_div:
-            span = price_div.find('span', class_=lambda x: x and 'StockInfoPreAfter_num' in x)
+            span = price_div.find('span', class_=lambda x: x and 'num' in str(x).lower())
             if span:
-                price_text = span.text.strip().replace(',', '')
-                if price_text.replace('.', '').isdigit():
+                price_text = span.text.strip().replace(',', '').replace('$', '')
+                print(f"   선택자1 텍스트: '{price_text}'")
+                try:
                     price = float(price_text)
-                    print(f"   ✅ 가격: ${price}")
-                    return {
-                        'price': round(price, 2),
-                        'source': 'naver',
-                        'timestamp': datetime.now().isoformat()
-                    }
+                    if 0.01 < price < 100000:
+                        print(f"   ✅ 가격: ${price}")
+                        return {
+                            'price': round(price, 2),
+                            'source': 'naver',
+                            'timestamp': datetime.now().isoformat()
+                        }
+                except ValueError:
+                    pass
         
-        # 선택자 2: 백업 (이전 방식)
-        price_div = soup.select_one('div[class*="StockPriceInfo_close-price"]')
-        if price_div:
-            span = price_div.find('span')
-            if span:
-                price_text = span.text.strip().replace(',', '')
-                if price_text.replace('.', '').isdigit():
-                    price = float(price_text)
-                    print(f"   ✅ 가격: ${price}")
-                    return {
-                        'price': round(price, 2),
-                        'source': 'naver',
-                        'timestamp': datetime.now().isoformat()
-                    }
+        # 선택자 2: price 키워드 포함하는 모든 div
+        price_divs = soup.find_all('div', class_=lambda x: x and 'price' in str(x).lower())
+        print(f"   price 관련 div: {len(price_divs)}개")
+        for div in price_divs[:5]:  # 최대 5개만 확인
+            spans = div.find_all('span')
+            for span in spans:
+                text = span.text.strip().replace(',', '').replace('$', '')
+                try:
+                    price = float(text)
+                    if 0.01 < price < 100000:
+                        print(f"   ✅ 선택자2에서 발견: ${price}")
+                        return {
+                            'price': round(price, 2),
+                            'source': 'naver',
+                            'timestamp': datetime.now().isoformat()
+                        }
+                except:
+                    continue
         
+        # 선택자 3: 모든 span에서 가격 형태 찾기 (최후의 수단)
+        all_spans = soup.find_all('span')
+        print(f"   전체 span: {len(all_spans)}개")
+        for span in all_spans:
+            text = span.text.strip().replace(',', '').replace('$', '')
+            if '.' in text and len(text) < 10:  # 소수점 있고 짧은 텍스트
+                try:
+                    price = float(text)
+                    if 10 < price < 1000:  # ETF 가격 합리적 범위
+                        print(f"   ✅ 선택자3에서 발견: ${price}")
+                        return {
+                            'price': round(price, 2),
+                            'source': 'naver',
+                            'timestamp': datetime.now().isoformat()
+                        }
+                except:
+                    continue
+        
+        # HTML 저장 (디버깅용)
+        debug_file = f'debug_us_{ticker}.html'
+        with open(debug_file, 'w', encoding='utf-8') as f:
+            f.write(response.text)
+        print(f"   💾 HTML 저장: {debug_file}")
         print(f"   ❌ 가격을 찾을 수 없음")
         return None
         
