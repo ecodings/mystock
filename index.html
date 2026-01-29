@@ -1805,7 +1805,8 @@
                 if (tradeDate.getFullYear() !== year || tradeDate.getMonth() + 1 !== month) return;
                 
                 const day = tradeDate.getDate();
-                const key = `${day}_${trade.account}`;  // 날짜 + 계좌로 키 생성
+                const currency = trade.account === '미국' ? 'USD' : 'KRW';
+                const key = `${day}_${currency}`;  // 날짜 + 통화로 키 생성
                 
                 if (!dailyTrades[key]) {
                     dailyTrades[key] = { 
@@ -1813,7 +1814,7 @@
                         sell: 0, 
                         buyQty: 0, 
                         sellQty: 0,
-                        account: trade.account,
+                        currency: currency,
                         day: day
                     };
                 }
@@ -1835,7 +1836,7 @@
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 
-                // 해당 날짜의 모든 계좌별 거래 찾기
+                // 해당 날짜의 모든 통화별 거래 찾기
                 const dayKeys = Object.keys(dailyTrades).filter(k => dailyTrades[k].day === day);
                 
                 let dayHtml = `
@@ -1843,20 +1844,20 @@
                         <div class="day-number">${day}</div>
                 `;
                 
-                // 각 계좌별로 표시
+                // 각 통화별로 표시
                 dayKeys.forEach(key => {
                     const trades = dailyTrades[key];
-                    const isUS = trades.account === '미국';
+                    const isUSD = trades.currency === 'USD';
                     
                     if (trades.buy > 0) {
-                        if (isUS) {
+                        if (isUSD) {
                             dayHtml += `<div class="day-buy">매수 ${trades.buyQty}주/$${trades.buy.toFixed(2)}</div>`;
                         } else {
                             dayHtml += `<div class="day-buy">매수 ${trades.buyQty}주/${(trades.buy/10000).toFixed(1)}만</div>`;
                         }
                     }
                     if (trades.sell > 0) {
-                        if (isUS) {
+                        if (isUSD) {
                             dayHtml += `<div class="day-sell">매도 ${trades.sellQty}주/$${trades.sell.toFixed(2)}</div>`;
                         } else {
                             dayHtml += `<div class="day-sell">매도 ${trades.sellQty}주/${(trades.sell/10000).toFixed(1)}만</div>`;
