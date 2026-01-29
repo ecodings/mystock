@@ -816,9 +816,9 @@
                 
                 console.log('총 거래 데이터:', tradeData.length, '개');
                 
+                await loadDepositData();  // 예수금 & 미국 ETF 가격 먼저 로드
                 await loadPrevClosePrices();
                 await loadDiaryData();
-                await loadDepositData();  // 예수금 데이터 로드
                 
                 renderAccounts();
                 updateCalendar();
@@ -924,7 +924,7 @@
                 const text = await response.text();
                 const lines = text.trim().split('\n');
                 
-                // 14번째 행 (index 13)
+                // 14번째 행 (index 13) - 예수금
                 if (lines.length >= 14) {
                     const line = lines[13];
                     const values = [];
@@ -953,6 +953,40 @@
                     
                     console.log('예수금 데이터 로드:', depositData);
                 }
+                
+                // 미국 ETF 가격 (L2~M5)
+                depositData.usPrices = {};
+                for (let i = 1; i <= 4; i++) {  // 2~5번째 행
+                    if (lines.length > i) {
+                        const line = lines[i];
+                        const values = [];
+                        let current = '';
+                        let inQuotes = false;
+                        
+                        for (let j = 0; j < line.length; j++) {
+                            const char = line[j];
+                            if (char === '"') {
+                                inQuotes = !inQuotes;
+                            } else if (char === ',' && !inQuotes) {
+                                values.push(current.replace(/^"|"$/g, '').trim());
+                                current = '';
+                            } else {
+                                current += char;
+                            }
+                        }
+                        values.push(current.replace(/^"|"$/g, '').trim());
+                        
+                        // L열(11), M열(12)
+                        const ticker = values[11]?.replace(/"/g, '').trim();
+                        const price = parseFloat(values[12]?.replace(/,/g, '') || 0);
+                        
+                        if (ticker && price > 0) {
+                            depositData.usPrices[ticker] = price;
+                            console.log(`미국 ETF 가격: ${ticker} = $${price}`);
+                        }
+                    }
+                }
+                
             } catch (error) {
                 console.error('예수금 데이터 로드 실패:', error);
             }
@@ -1121,7 +1155,11 @@
                 }
                 
                 tradeData.forEach(trade => {
-                    if (data.prices && data.prices[trade.code]) {
+                    // 미국 ETF는 시트 가격 우선
+                    if (trade.account === '미국' && depositData.usPrices && depositData.usPrices[trade.code]) {
+                        trade.prevClose = depositData.usPrices[trade.code];
+                        console.log(`✅ ${trade.code}: $${trade.prevClose} (시트 가격)`);
+                    } else if (data.prices && data.prices[trade.code]) {
                         trade.prevClose = data.prices[trade.code];
                     } else {
                         trade.prevClose = trade.price * 0.98;
@@ -1133,7 +1171,12 @@
                 console.log('⚠️ stock_prices.json 없음 - 매수가 기준 사용');
                 document.getElementById('priceUpdateTime').textContent = '';
                 tradeData.forEach(trade => {
-                    trade.prevClose = trade.price;
+                    // 미국 ETF는 시트 가격 우선
+                    if (trade.account === '미국' && depositData.usPrices && depositData.usPrices[trade.code]) {
+                        trade.prevClose = depositData.usPrices[trade.code];
+                    } else {
+                        trade.prevClose = trade.price;
+                    }
                 });
             }
         }
