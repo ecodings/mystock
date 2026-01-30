@@ -531,13 +531,13 @@
         /* 도넛 차트 영역 */
         .donut-charts-container {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;  /* 👈 flex → grid */
-            gap: 15px;  /* 👈 10px → 15px */
+            grid-template-columns: 1fr 1fr 1fr 1fr;  /* 👈 4개로 수정 */
+            gap: 15px;
             flex: 1;
             min-height: 0;
-            background: #f8f9fa;  /* 👈 추가 */
-            border-radius: 8px;  /* 👈 추가 */
-            padding: 15px;  /* 👈 추가 */
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
         }
         
         .donut-chart-item {
@@ -1385,20 +1385,20 @@
                 // 예수금 표시
                 let depositText = '';
                 if (accountName === '종목') {
-                    depositText = `<span style="font-size: 18px; color: #7f8c8d; font-weight: normal; margin-left: 15px;">예수금: ${depositData.종목.toLocaleString()}원</span>`;
+                    depositText = `<span style="font-size: 13px; color: #7f8c8d; font-weight: normal; margin-left: 15px;">예수금: ${depositData.종목.toLocaleString()}원</span>`;
                 } else if (accountName === 'ETF') {
-                    depositText = `<span style="font-size: 18px; color: #7f8c8d; font-weight: normal; margin-left: 15px;">예수금: ${depositData.ETF.toLocaleString()}원</span>`;
+                    depositText = `<span style="font-size: 13px; color: #7f8c8d; font-weight: normal; margin-left: 15px;">예수금: ${depositData.ETF.toLocaleString()}원</span>`;
                 } else if (accountName === '미국') {
                     const rateInfo = depositData.환율 > 0 ? ` (환율 1$=${depositData.환율.toLocaleString()}원, ${depositData.환율날짜} 기준)` : '';
-                    depositText = `<span style="font-size: 18px; color: #7f8c8d; font-weight: normal; margin-left: 15px;">예수금: $${depositData.미국.toLocaleString()}${rateInfo}</span>`;
+                    depositText = `<span style="font-size: 13px; color: #7f8c8d; font-weight: normal; margin-left: 15px;">예수금: $${depositData.미국.toLocaleString()}${rateInfo}</span>`;
                 }
                 
                 // 손익 표시
                 let profitText = '';
                 if (accountName === '미국') {
-                    profitText = `<span style="font-size: 18px; margin-left: 10px;" class="${profitClass}">손익: ${profitSign}$${Math.abs(accountProfit).toFixed(2)} | 수익률: ${profitSign}${accountProfitRate.toFixed(2)}%</span>`;
+                    profitText = `<span style="font-size: 13px; margin-left: 10px;" class="${profitClass}">손익: ${profitSign}$${Math.abs(accountProfit).toFixed(2)} | 수익률: ${profitSign}${accountProfitRate.toFixed(2)}%</span>`;
                 } else {
-                    profitText = `<span style="font-size: 18px; margin-left: 10px;" class="${profitClass}">손익: ${profitSign}${Math.floor(Math.abs(accountProfit)).toLocaleString()}원 | 수익률: ${profitSign}${accountProfitRate.toFixed(2)}%</span>`;
+                    profitText = `<span style="font-size: 13px; margin-left: 10px;" class="${profitClass}">손익: ${profitSign}${Math.floor(Math.abs(accountProfit)).toLocaleString()}원 | 수익률: ${profitSign}${accountProfitRate.toFixed(2)}%</span>`;
                 }
                 
                 html += `<div class="account-section">`;
