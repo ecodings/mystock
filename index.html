@@ -1022,37 +1022,27 @@
                     stock.quantity += trade.quantity;
                     stock.totalBuy += amount;
                     stock.buyCount += trade.quantity;
-                    
-                    // 계좌별 분리
-                    if (trade.account === '미국') {
-                        totalInvestmentUSD += amount;
-                    } else {
-                        totalInvestmentKRW += amount;
-                    }
                 } else if (trade.type === '매도') {
                     const currentAvgPrice = stock.totalBuy / stock.buyCount;
                     stock.quantity -= trade.quantity;
                     stock.totalBuy -= currentAvgPrice * trade.quantity;
                     stock.buyCount -= trade.quantity;
-                    
-                    // 계좌별 분리
-                    if (trade.account === '미국') {
-                        totalInvestmentUSD -= amount;
-                    } else {
-                        totalInvestmentKRW -= amount;
-                    }
                 }
             });
             
-            // 총 평가금액 계산
+            // 투자금 및 평가금액 계산
             Object.keys(accounts).forEach(accountName => {
                 Object.keys(accounts[accountName]).forEach(stockName => {
                     const stock = accounts[accountName][stockName];
                     if (stock.quantity > 0) {
+                        const investment = stock.totalBuy;
                         const value = stock.prevClose * stock.quantity;
+                        
                         if (accountName === '미국') {
+                            totalInvestmentUSD += investment;
                             totalValueUSD += value;
                         } else {
+                            totalInvestmentKRW += investment;
                             totalValueKRW += value;
                         }
                     }
@@ -1392,7 +1382,7 @@
                 } else if (accountName === 'ETF') {
                     depositText = `<span style="font-size: 18px; color: #7f8c8d; font-weight: normal; margin-left: 15px;">예수금: ${depositData.ETF.toLocaleString()}원</span>`;
                 } else if (accountName === '미국') {
-                    const rateInfo = depositData.환율 > 0 ? ` (환율 1$=${depositData.환율.toLocaleString()}원` : '';
+                    const rateInfo = depositData.환율 > 0 ? ` (환율 1$=${depositData.환율.toLocaleString()}원, ${depositData.환율날짜} 기준)` : '';
                     depositText = `<span style="font-size: 18px; color: #7f8c8d; font-weight: normal; margin-left: 15px;">예수금: $${depositData.미국.toLocaleString()}${rateInfo}</span>`;
                 }
                 
