@@ -707,6 +707,12 @@
                                 <canvas id="usDonutChart"></canvas>
                             </div>
                         </div>
+                        <div class="donut-chart-item">
+                            <div class="donut-chart-title">전체</div>
+                            <div class="donut-chart-canvas">
+                                <canvas id="totalDonutChart"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -737,6 +743,7 @@
         let stockChart = null;
         let etfChart = null;
         let usChart = null;
+        let totalChart = null;
         let unsavedDiary = false;  // 저장 안 된 일기 여부
         let lastDiaryContent = '';  // 마지막 로드된 일기 내용
         
@@ -1689,6 +1696,65 @@
                     }]
                 },
                 options: commonOptions
+            });
+            
+            // 전체 차트 (계좌별 비율)
+            const totalLabels = ['종목', 'ETF', '미국'];
+            const totalValues = [0, 0, 0];
+            const totalColors = ['#FF6384', '#36A2EB', '#FFCE56'];
+            
+            // 각 계좌별 투자금 계산 (예수금 제외)
+            ['종목', 'ETF', '미국'].forEach((accountName, idx) => {
+                const accountData = categoryData[accountName] || {};
+                let accountTotal = 0;
+                
+                Object.values(accountData).forEach(categoryObj => {
+                    Object.values(categoryObj.stocks).forEach(stock => {
+                        if (stock.quantity > 0) {
+                            accountTotal += stock.totalBuy;
+                        }
+                    });
+                });
+                
+                // 미국은 원화로 환산
+                if (accountName === '미국') {
+                    accountTotal *= (depositData.환율 || 1);
+                }
+                
+                totalValues[idx] = accountTotal;
+            });
+            
+            const totalCtx = document.getElementById('totalDonutChart').getContext('2d');
+            if (totalChart) {
+                totalChart.destroy();
+            }
+            totalChart = new Chart(totalCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: totalLabels,
+                    datasets: [{
+                        data: totalValues,
+                        backgroundColor: totalColors
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    plugins: {
+                        ...commonOptions.plugins,
+                        tooltip: {
+                            ...commonOptions.plugins.tooltip,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${Math.floor(value).toLocaleString()}원 (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
             });
         }
         
