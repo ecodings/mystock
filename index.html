@@ -729,7 +729,7 @@
     <script>
         // 전역 변수
         let tradeData = [];
-        let depositData = { 종합: 0, ETF: 0, 미국: 0, 환율: 0, 환율날짜: '' };  // 예수금 데이터
+        let depositData = { 종목: 0, ETF: 0, 미국: 0, 환율: 0, 환율날짜: '', usPrices: {} };  // 예수금 데이터
         let selectedStock = null;
         let selectedDate = null;
         let currentYear = new Date().getFullYear();
@@ -945,7 +945,7 @@
                     values.push(current.replace(/^"|"$/g, '').trim());
                     
                     // H14(7), I14(8), J14(9), K14(10), A14(0) 추출
-                    depositData.종합 = parseFloat(values[7]?.replace(/,/g, '') || 0);
+                    depositData.종목 = parseFloat(values[7]?.replace(/,/g, '') || 0);
                     depositData.ETF = parseFloat(values[8]?.replace(/,/g, '') || 0);
                     depositData.미국 = parseFloat(values[9]?.replace(/,/g, '') || 0);
                     depositData.환율 = parseFloat(values[10]?.replace(/,/g, '') || 0);
@@ -994,8 +994,10 @@
         
         // 포트폴리오 전체 요약 업데이트
         function updatePortfolioSummary() {
-            let totalInvestment = 0;  // 총 투자금 (매수 - 매도)
-            let totalValue = 0;       // 총 평가금액
+            let totalInvestmentKRW = 0;  // 원화 투자금
+            let totalInvestmentUSD = 0;  // 달러 투자금
+            let totalValueKRW = 0;       // 원화 평가액
+            let totalValueUSD = 0;       // 달러 평가액
             
             const accounts = {};
             
@@ -1014,18 +1016,31 @@
                 }
                 
                 const stock = accounts[trade.account][trade.stockName];
+                const amount = trade.price * trade.quantity;
                 
                 if (trade.type === '매수') {
                     stock.quantity += trade.quantity;
-                    stock.totalBuy += trade.price * trade.quantity;
+                    stock.totalBuy += amount;
                     stock.buyCount += trade.quantity;
-                    totalInvestment += trade.price * trade.quantity;
+                    
+                    // 계좌별 분리
+                    if (trade.account === '미국') {
+                        totalInvestmentUSD += amount;
+                    } else {
+                        totalInvestmentKRW += amount;
+                    }
                 } else if (trade.type === '매도') {
                     const currentAvgPrice = stock.totalBuy / stock.buyCount;
                     stock.quantity -= trade.quantity;
                     stock.totalBuy -= currentAvgPrice * trade.quantity;
                     stock.buyCount -= trade.quantity;
-                    totalInvestment -= trade.price * trade.quantity;
+                    
+                    // 계좌별 분리
+                    if (trade.account === '미국') {
+                        totalInvestmentUSD -= amount;
+                    } else {
+                        totalInvestmentKRW -= amount;
+                    }
                 }
             });
             
@@ -1034,21 +1049,34 @@
                 Object.keys(accounts[accountName]).forEach(stockName => {
                     const stock = accounts[accountName][stockName];
                     if (stock.quantity > 0) {
-                        totalValue += stock.prevClose * stock.quantity;
+                        const value = stock.prevClose * stock.quantity;
+                        if (accountName === '미국') {
+                            totalValueUSD += value;
+                        } else {
+                            totalValueKRW += value;
+                        }
                     }
                 });
             });
+            
+            // 환율 적용
+            const exchangeRate = depositData.환율 || 1;
+            const totalInvestment = totalInvestmentKRW + (totalInvestmentUSD * exchangeRate);
+            const totalValue = totalValueKRW + (totalValueUSD * exchangeRate);
             
             const profit = totalValue - totalInvestment;
             const profitRate = totalInvestment !== 0 ? (profit / totalInvestment * 100) : 0;
             const profitClass = profit >= 0 ? 'profit-positive' : 'profit-negative';
             const profitSign = profit >= 0 ? '+' : '';
             
+            // 환율 정보
+            const rateInfo = depositData.환율 > 0 ? ` (환율 1$=${depositData.환율.toLocaleString()}원, ${depositData.환율날짜} 기준)` : '';
+            
             // 헤더에 표시
             const summary = `
                 총 투자: ${Math.floor(totalInvestment).toLocaleString()}원 | 
                 평가액: ${Math.floor(totalValue).toLocaleString()}원 | 
-                <span class="${profitClass}">${profitSign}${Math.floor(profit).toLocaleString()}원 (${profitSign}${profitRate.toFixed(2)}%)</span>
+                <span class="${profitClass}">${profitSign}${Math.floor(profit).toLocaleString()}원 (${profitSign}${profitRate.toFixed(2)}%)</span>${rateInfo}
             `;
             
             document.getElementById('portfolioSummary').innerHTML = summary;
@@ -1340,19 +1368,44 @@
             accountOrder.forEach(accountName => {
                 if (!accounts[accountName]) return;
                 
+                // 계좌별 투자금, 평가액, 손익 계산
+                let accountInvestment = 0;
+                let accountValue = 0;
+                
+                Object.keys(accounts[accountName]).forEach(stockName => {
+                    const stock = accounts[accountName][stockName];
+                    if (stock.quantity > 0) {
+                        accountInvestment += stock.totalBuy;
+                        accountValue += stock.prevClose * stock.quantity;
+                    }
+                });
+                
+                const accountProfit = accountValue - accountInvestment;
+                const accountProfitRate = accountInvestment !== 0 ? (accountProfit / accountInvestment * 100) : 0;
+                const profitClass = accountProfit >= 0 ? 'profit-positive' : 'profit-negative';
+                const profitSign = accountProfit >= 0 ? '+' : '';
+                
                 // 예수금 표시
                 let depositText = '';
-                if (accountName === '종합') {
-                    depositText = `<span style="font-size: 14px; color: #7f8c8d; margin-left: 10px;">예수금: ${depositData.종합.toLocaleString()}원</span>`;
+                if (accountName === '종목') {
+                    depositText = `<span style="font-size: 13px; color: #7f8c8d; font-weight: normal; margin-left: 15px;">예수금: ${depositData.종목.toLocaleString()}원</span>`;
                 } else if (accountName === 'ETF') {
-                    depositText = `<span style="font-size: 14px; color: #7f8c8d; margin-left: 10px;">예수금: ${depositData.ETF.toLocaleString()}원</span>`;
+                    depositText = `<span style="font-size: 13px; color: #7f8c8d; font-weight: normal; margin-left: 15px;">예수금: ${depositData.ETF.toLocaleString()}원</span>`;
                 } else if (accountName === '미국') {
                     const rateInfo = depositData.환율 > 0 ? ` (환율 1$=${depositData.환율.toLocaleString()}원, ${depositData.환율날짜} 기준)` : '';
-                    depositText = `<span style="font-size: 14px; color: #7f8c8d; margin-left: 10px;">예수금: $${depositData.미국.toLocaleString()}${rateInfo}</span>`;
+                    depositText = `<span style="font-size: 13px; color: #7f8c8d; font-weight: normal; margin-left: 15px;">예수금: $${depositData.미국.toLocaleString()}${rateInfo}</span>`;
+                }
+                
+                // 손익 표시
+                let profitText = '';
+                if (accountName === '미국') {
+                    profitText = `<span style="font-size: 13px; margin-left: 10px;" class="${profitClass}">손익: ${profitSign}$${Math.abs(accountProfit).toFixed(2)} | 수익률: ${profitSign}${accountProfitRate.toFixed(2)}%</span>`;
+                } else {
+                    profitText = `<span style="font-size: 13px; margin-left: 10px;" class="${profitClass}">손익: ${profitSign}${Math.floor(Math.abs(accountProfit)).toLocaleString()}원 | 수익률: ${profitSign}${accountProfitRate.toFixed(2)}%</span>`;
                 }
                 
                 html += `<div class="account-section">`;
-                html += `<div class="account-title">${accountName}${depositText}</div>`;
+                html += `<div class="account-title">${accountName}${depositText}${profitText}</div>`;
                 
                 // 종목을 평가금액 순으로 정렬
                 const stockList = Object.keys(accounts[accountName])
