@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-04T11:33:18.492671",
+  "updated_at": "2026-09-05T01:44:17.689074",
   "prices": {
     "428560": 16165.0,
     "005380": 383500.0,
@@ -60,267 +60,267 @@
     "041510": {
       "price": 79000.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:30.634881"
+      "timestamp": "2026-09-05T01:43:51.647897"
     },
     "064350": {
       "price": 126800.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:59.262204"
+      "timestamp": "2026-09-05T01:43:25.914531"
     },
     "091160": {
       "price": 123750.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:34.499226"
+      "timestamp": "2026-09-05T01:43:31.183576"
     },
     "360750": {
       "price": 25980.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:26.403197"
+      "timestamp": "2026-09-05T01:43:52.907797"
     },
     "379810": {
       "price": 26470.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:33:07.072306"
+      "timestamp": "2026-09-05T01:43:59.118260"
     },
     "377300": {
       "price": 47300.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:33:03.239380"
+      "timestamp": "2026-09-05T01:43:46.449047"
     },
     "139230": {
       "price": 12670.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:25.100934"
+      "timestamp": "2026-09-05T01:44:12.004586"
     },
     "364970": {
       "price": 7235.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:20.755052"
+      "timestamp": "2026-09-05T01:43:20.677972"
     },
     "102120": {
       "price": 6910.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:19.325970"
+      "timestamp": "2026-09-05T01:43:19.236987"
     },
     "102110": {
       "price": 105880.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:23.678100"
+      "timestamp": "2026-09-05T01:44:05.655791"
     },
     "357780": {
       "price": 325000.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:46.255693"
+      "timestamp": "2026-09-05T01:43:39.420667"
     },
     "316140": {
       "price": 33200.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:52.825519"
+      "timestamp": "2026-09-05T01:43:54.125102"
     },
     "196170": {
       "price": 288500.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:35.803946"
+      "timestamp": "2026-09-05T01:44:08.244650"
     },
     "133690": {
       "price": 176990.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:38.321348"
+      "timestamp": "2026-09-05T01:43:56.542857"
     },
     "010120": {
       "price": 195300.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:42.356273"
+      "timestamp": "2026-09-05T01:43:42.287607"
     },
     "005290": {
       "price": 40250.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:33:00.616446"
+      "timestamp": "2026-09-05T01:43:57.821487"
     },
     "244580": {
       "price": 8245.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:44.945760"
+      "timestamp": "2026-09-05T01:43:35.401978"
     },
     "055550": {
       "price": 110300.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:33.229025"
+      "timestamp": "2026-09-05T01:43:32.640142"
     },
     "015760": {
       "price": 32150.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:51.483583"
+      "timestamp": "2026-09-05T01:43:28.480846"
     },
     "483340": {
       "price": 20800.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:47.663467"
+      "timestamp": "2026-09-05T01:43:41.005056"
     },
     "017960": {
       "price": 22550.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:33:12.428388"
+      "timestamp": "2026-09-05T01:44:06.912589"
     },
     "428560": {
       "price": 16165.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:27.823829"
+      "timestamp": "2026-09-05T01:43:24.617280"
     },
     "000660": {
       "price": 1647000.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:50.186915"
+      "timestamp": "2026-09-05T01:44:09.458769"
     },
     "005930": {
       "price": 255500.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:33:10.956538"
+      "timestamp": "2026-09-05T01:43:23.401440"
     },
     "103590": {
       "price": 68300.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:41.060607"
+      "timestamp": "2026-09-05T01:43:43.772582"
     },
     "030200": {
       "price": 54300.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:31.930049"
+      "timestamp": "2026-09-05T01:43:45.188330"
     },
     "489790": {
       "price": 49400.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:33:01.934385"
+      "timestamp": "2026-09-05T01:43:49.041239"
     },
     "229200": {
       "price": 13820.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:39.592192"
+      "timestamp": "2026-09-05T01:44:01.819253"
     },
     "005380": {
       "price": 383500.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:29.163269"
+      "timestamp": "2026-09-05T01:44:04.400051"
     },
     "396500": {
       "price": 34940.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:55.358971"
+      "timestamp": "2026-09-05T01:43:50.315248"
     },
     "URNM": {
       "price": NaN,
       "source": "yahoo",
-      "timestamp": "2026-09-03T16:00:00"
+      "timestamp": "2026-09-04T16:00:00"
     },
     "URA": {
       "price": NaN,
       "source": "yahoo",
-      "timestamp": "2026-09-03T16:00:00"
+      "timestamp": "2026-09-04T16:00:00"
     },
     "AAAU": {
       "price": NaN,
       "source": "yahoo",
-      "timestamp": "2026-09-03T16:00:00"
+      "timestamp": "2026-09-04T16:00:00"
     },
     "SLVR": {
       "price": NaN,
       "source": "yahoo",
-      "timestamp": "2026-09-03T16:00:00"
+      "timestamp": "2026-09-04T16:00:00"
     },
     "042700": {
       "price": 230000.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:56.648305"
+      "timestamp": "2026-09-05T01:43:27.219586"
     },
     "079550": {
       "price": 652000.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:48.965881"
+      "timestamp": "2026-09-05T01:43:55.377680"
     },
     "440110": {
       "price": 67300.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:22.229633"
+      "timestamp": "2026-09-05T01:43:22.131764"
     },
     "329180": {
       "price": 436500.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:33:04.516088"
+      "timestamp": "2026-09-05T01:44:03.111922"
     },
     "006800": {
       "price": 34450.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:37.140109"
+      "timestamp": "2026-09-05T01:44:10.755468"
     },
     "034020": {
       "price": 79200.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:33:09.731982"
+      "timestamp": "2026-09-05T01:43:47.742925"
     },
     "ORCL": {
       "price": NaN,
       "source": "yahoo",
-      "timestamp": "2026-09-03T16:00:00"
+      "timestamp": "2026-09-04T16:00:00"
     },
     "161890": {
       "price": 145800.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:54.082866"
+      "timestamp": "2026-09-05T01:43:36.677294"
     },
     "VRT": {
       "price": NaN,
       "source": "yahoo",
-      "timestamp": "2026-09-03T16:00:00"
+      "timestamp": "2026-09-04T16:00:00"
     },
     "ALM": {
       "price": NaN,
       "source": "yahoo",
-      "timestamp": "2026-09-03T16:00:00"
+      "timestamp": "2026-09-04T16:00:00"
     },
     "010130": {
       "price": 1222000.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:33:08.430795"
+      "timestamp": "2026-09-05T01:43:37.954140"
     },
     "ETN": {
       "price": NaN,
       "source": "yahoo",
-      "timestamp": "2026-09-03T16:00:00"
+      "timestamp": "2026-09-04T16:00:00"
     },
     "TSM": {
       "price": NaN,
       "source": "yahoo",
-      "timestamp": "2026-09-03T16:00:00"
+      "timestamp": "2026-09-04T16:00:00"
     },
     "DLR": {
       "price": NaN,
       "source": "yahoo",
-      "timestamp": "2026-09-03T16:00:00"
+      "timestamp": "2026-09-04T16:00:00"
     },
     "ROK": {
       "price": NaN,
       "source": "yahoo",
-      "timestamp": "2026-09-03T16:00:00"
+      "timestamp": "2026-09-04T16:00:00"
     },
     "411060": {
       "price": 27280.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:43.623738"
+      "timestamp": "2026-09-05T01:44:00.537946"
     },
     "083450": {
       "price": 43000.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:33:05.819924"
+      "timestamp": "2026-09-05T01:43:34.115428"
     },
     "033500": {
       "price": 17160.0,
       "source": "naver",
-      "timestamp": "2026-09-04T11:32:57.960068"
+      "timestamp": "2026-09-05T01:43:29.737083"
     },
     "SARO": {
       "price": NaN,
       "source": "yahoo",
-      "timestamp": "2026-09-03T16:00:00"
+      "timestamp": "2026-09-04T16:00:00"
     }
   }
 }
