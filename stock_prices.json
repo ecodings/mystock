@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-24T12:03:42.667349",
+  "updated_at": "2026-09-25T02:00:36.547821",
   "prices": {
     "428560": 15100.0,
     "005380": 353500.0,
@@ -32,295 +32,295 @@
     "364970": 6575.0,
     "015760": 30250.0,
     "229200": 14150.0,
-    "URNM": 50.62,
-    "URA": 41.99,
-    "AAAU": 42.23,
-    "SLVR": 58.7,
+    "URNM": 49.13,
+    "URA": 40.86,
+    "AAAU": 42.15,
+    "SLVR": 57.8,
     "042700": 243500.0,
     "079550": 692000.0,
     "440110": 81600.0,
     "329180": 441000.0,
     "006800": 32250.0,
     "034020": 81700.0,
-    "ORCL": 144.56,
+    "ORCL": 139.54,
     "161890": 147000.0,
-    "VRT": 248.78,
-    "ALM": 13.62,
+    "VRT": 245.3,
+    "ALM": 12.4,
     "010130": 1116000.0,
-    "ETN": 438.76,
-    "TSM": 446.57,
-    "DLR": 181.45,
-    "ROK": 432.89,
+    "ETN": 440.0,
+    "TSM": 451.15,
+    "DLR": 181.0,
+    "ROK": 432.93,
     "411060": 26550.0,
     "083450": 49250.0,
     "033500": 15930.0,
-    "SARO": 22.58
+    "SARO": 22.18
   },
   "price_details": {
     "041510": {
       "price": 82600.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "064350": {
       "price": 115900.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "091160": {
       "price": 140400.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "360750": {
       "price": 26200.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "379810": {
       "price": 27665.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "377300": {
       "price": 40650.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "139230": {
       "price": 12785.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "364970": {
       "price": 6575.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "102120": {
       "price": 7680.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "102110": {
       "price": 113360.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "357780": {
       "price": 370000.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "316140": {
       "price": 35350.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "196170": {
       "price": 250000.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "133690": {
       "price": 184985.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "010120": {
       "price": 205500.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "005290": {
       "price": 46800.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "244580": {
       "price": 7820.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "055550": {
       "price": 109300.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "015760": {
       "price": 30250.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "483340": {
       "price": 22995.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "017960": {
       "price": 20250.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "428560": {
       "price": 15100.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "000660": {
       "price": 1862000.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "005930": {
       "price": 285500.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "103590": {
       "price": 81700.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "030200": {
       "price": 52700.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "489790": {
       "price": 47950.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "229200": {
       "price": 14150.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "005380": {
       "price": 353500.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "396500": {
       "price": 39395.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "URNM": {
-      "price": 50.62,
+      "price": 49.13,
       "source": "yahoo",
-      "timestamp": "2026-09-23T16:00:00"
+      "timestamp": "2026-09-24T16:00:00"
     },
     "URA": {
-      "price": 41.99,
+      "price": 40.86,
       "source": "yahoo",
-      "timestamp": "2026-09-23T16:00:00"
+      "timestamp": "2026-09-24T16:00:00"
     },
     "AAAU": {
-      "price": 42.23,
+      "price": 42.15,
       "source": "yahoo",
-      "timestamp": "2026-09-23T16:00:00"
+      "timestamp": "2026-09-24T16:00:00"
     },
     "SLVR": {
-      "price": 58.7,
+      "price": 57.8,
       "source": "yahoo",
-      "timestamp": "2026-09-23T16:00:00"
+      "timestamp": "2026-09-24T16:00:00"
     },
     "042700": {
       "price": 243500.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "079550": {
       "price": 692000.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "440110": {
       "price": 81600.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "329180": {
       "price": 441000.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "006800": {
       "price": 32250.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "034020": {
       "price": 81700.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "ORCL": {
-      "price": 144.56,
+      "price": 139.54,
       "source": "yahoo",
-      "timestamp": "2026-09-23T16:00:00"
+      "timestamp": "2026-09-24T16:00:00"
     },
     "161890": {
       "price": 147000.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "VRT": {
-      "price": 248.78,
+      "price": 245.3,
       "source": "yahoo",
-      "timestamp": "2026-09-23T16:00:00"
+      "timestamp": "2026-09-24T16:00:00"
     },
     "ALM": {
-      "price": 13.62,
+      "price": 12.4,
       "source": "yahoo",
-      "timestamp": "2026-09-23T16:00:00"
+      "timestamp": "2026-09-24T16:00:00"
     },
     "010130": {
       "price": 1116000.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "ETN": {
-      "price": 438.76,
+      "price": 440.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T16:00:00"
+      "timestamp": "2026-09-24T16:00:00"
     },
     "TSM": {
-      "price": 446.57,
+      "price": 451.15,
       "source": "yahoo",
-      "timestamp": "2026-09-23T16:00:00"
+      "timestamp": "2026-09-24T16:00:00"
     },
     "DLR": {
-      "price": 181.45,
+      "price": 181.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T16:00:00"
+      "timestamp": "2026-09-24T16:00:00"
     },
     "ROK": {
-      "price": 432.89,
+      "price": 432.93,
       "source": "yahoo",
-      "timestamp": "2026-09-23T16:00:00"
+      "timestamp": "2026-09-24T16:00:00"
     },
     "411060": {
       "price": 26550.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "083450": {
       "price": 49250.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "033500": {
       "price": 15930.0,
       "source": "yahoo",
-      "timestamp": "2026-09-23T15:30:00"
+      "timestamp": "2026-09-24T15:30:00"
     },
     "SARO": {
-      "price": 22.58,
+      "price": 22.18,
       "source": "yahoo",
-      "timestamp": "2026-09-23T16:00:00"
+      "timestamp": "2026-09-24T16:00:00"
     }
   }
 }
